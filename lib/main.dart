@@ -120,13 +120,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-      AlertUtils.showPopup(
-      context: context,
-      title: 'Frost Alert',
-      message: 'Temperature has dropped below your threshold—cover your plants!',
+          AlertUtils.showPopup(
+            context: context,
+            title: 'Frost Alert',
+            message: 'Temperature has dropped below your threshold—cover your plants!',
+          );
+        },
+        child: const Text('Test Popup'),
+      ),
     );
-  },
-  child: Text('Test Popup'),
+  }
 }
 
 class SecondPage extends StatefulWidget {
