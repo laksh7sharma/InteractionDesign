@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import "API.dart";
 import 'alerts.dart';
-Future<void> main() async {
-  
-}
+
 void main() {
   runApp(const MyApp());
 }
