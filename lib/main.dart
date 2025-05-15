@@ -30,7 +30,13 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
+
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    /// Define the app routes
+    initialRoute: '/',
+    routes: {
+      '/second': (context) => const SecondPage(),
+    }
     );
   }
 }
@@ -113,10 +119,125 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () //_incrementCounter,
+        {
+          Navigator.pushNamed(context, '/second');
+        },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      )
+      , // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class SecondPage extends StatefulWidget {
+  const SecondPage({Key? key}) : super(key: key);
+  @override
+  _SecondPageState createState() => _SecondPageState();
+}
+
+class _SecondPageState extends State<SecondPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Future Overview"),
+      ),
+      body: Stack( // Use Stack to overlay button
+        children: [
+          GridView.count(
+            primary: false,
+            padding: const EdgeInsets.all(20),
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            crossAxisCount: 1,
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(8),
+                color: Colors.teal[100],
+                child: const Text("Monday"),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                color: Colors.teal[200],
+                child: const Text('Monday'),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                color: Colors.teal[300],
+                child: const Text('Monday'),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                color: Colors.teal[400],
+                child: const Text('Monday'),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                color: Colors.teal[500],
+                child: const Text('Monday'),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                color: Colors.teal[600],
+                child: const Text('Monday'),
+              ),
+            ],
+          ),
+          Positioned( // Proper placement within Stack
+            bottom: 20,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: ElevatedButton(
+                child: Text("Go back"),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class InfoBox extends StatefulWidget {
+  final String initialData;
+
+  InfoBox({required this.initialData});
+
+  @override
+  _InfoBoxState createState() => _InfoBoxState();
+}
+
+class _InfoBoxState extends State<InfoBox> {
+  String displayText = "";
+
+  @override
+  void initState() {
+    super.initState();
+    displayText = widget.initialData;
+  }
+
+  void updateData(String newData) {
+    setState(() {
+      displayText = newData;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(15),
+      margin: EdgeInsets.symmetric(vertical: 5),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.blue),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(displayText, style: TextStyle(fontSize: 18)),
     );
   }
 }
