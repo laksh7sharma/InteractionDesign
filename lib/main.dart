@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'alerts.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -119,16 +119,14 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () //_incrementCounter,
-        {
-          Navigator.pushNamed(context, '/second');
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      )
-      , // This trailing comma makes auto-formatting nicer for build methods.
+        onPressed: () {
+      AlertUtils.showPopup(
+      context: context,
+      title: 'Frost Alert',
+      message: 'Temperature has dropped below your threshold—cover your plants!',
     );
-  }
+  },
+  child: Text('Test Popup'),
 }
 
 class SecondPage extends StatefulWidget {
