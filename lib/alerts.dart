@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
 import 'dart:collection';
+
 class _Alert {
   final String title;
   final String message;
@@ -10,14 +11,22 @@ class _Alert {
 class AlertUtils {
   static final Queue<_Alert> _queue = Queue<_Alert>();
   static bool _isShowing = false;
-
+  static int _nextNotificationId = 0;
   /// Enqueue and (if not already showing) display the alerts.
   static void showPopup({
     required BuildContext context,
     required String title,
     required String message,
+    bool alsoNotify = true,
   }) {
     _queue.add(_Alert(title, message));
+    if (alsoNotify) {
+      NotificationService().showNotification(
+        id: _nextNotificationId++,
+        title: title,
+        body: message,
+      );
+    }
     if (!_isShowing) _showNext(context);
   }
 
@@ -139,8 +148,52 @@ class _AlertCarouselState extends State<_AlertCarousel> {
   }
 }
 class NotificationService {
-  static final _plugin = FlutterLocalNotificationsPlugin();
-  static const _channelID = 'garden_alerts';
-  static const _channelName = 'Garden Alerts';
+  // Singleton pattern
+  static final NotificationService _instance = NotificationService._internal();
+  factory NotificationService() => _instance;
+  NotificationService._internal();
 
+  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  Future<void> init() async {
+    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    
+    await _flutterLocalNotificationsPlugin.initialize(
+      const InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+        macOS: iosSettings,
+      ),
+    );
+  }
+
+  Future<void> showNotification({
+    required int id,
+    required String title,
+    required String body,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      'alerts_channel',            // channel id
+      'Alerts',                    // channel name
+      channelDescription: 'Queued alerts',
+      importance: Importance.high,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+    const iosDetails = DarwinNotificationDetails();
+    final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+
+    await _flutterLocalNotificationsPlugin.show(
+      id,       // unique id for each notification
+      title,
+      body,
+      details,
+    );
+  }
 }

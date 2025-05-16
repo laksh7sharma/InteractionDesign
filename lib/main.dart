@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import "API.dart";
 import 'alerts.dart';
 
-void main() {
+Future<void> main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().init();
   runApp(const MyApp());
 }
 
