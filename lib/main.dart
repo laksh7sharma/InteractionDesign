@@ -122,11 +122,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          AlertUtils.showPopup(
-            context: context,
-            title: 'Frost Alert',
-            message: 'Temperature has dropped below your threshold—cover your plants!',
-          );
+          AlertUtils.showPopup(context:context, title:"Test Popup", message:"This is a test popup", );
+          AlertUtils.showPopup(context:context, title:"Test Popup 2", message:"This is a test popup", );
+            
+          
         },
         child: const Text('Test Popup'),
       ),
