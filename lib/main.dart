@@ -189,7 +189,7 @@ class _SecondPageState extends State<SecondPage> {
       appBar: AppBar(
         title: Text("Future Overview"),
       ),
-      body: Stack( // Use Stack to overlay button
+      body: Stack(
         children: [
           GridView.count(
             primary: false,
@@ -220,7 +220,7 @@ class _SecondPageState extends State<SecondPage> {
                     Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,  // changed to start for left alignment
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: const [
                           Row(
                             mainAxisSize: MainAxisSize.min,
