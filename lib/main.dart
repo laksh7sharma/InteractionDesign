@@ -1,13 +1,31 @@
 import 'package:flutter/material.dart';
 import "API.dart";
 import 'alerts.dart';
+import 'package:weather_icons/weather_icons.dart';
+
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().init();
   runApp(const MyApp());
 }
+class DynamicWeatherIcon extends StatelessWidget {
+  final IconData icon;
+  final double size;
+  final Color color;
 
+  const DynamicWeatherIcon({
+    Key? key,
+    required this.icon,
+    this.size = 40,
+    this.color = Colors.white,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BoxedIcon(icon, size: size, color: color);
+  }
+}
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -94,7 +112,20 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.arrow_forward),
+            tooltip: 'Go to Second Page',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SecondPage()),
+              );
+            },
+          ),
+        ],
       ),
+
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
@@ -142,6 +173,16 @@ class SecondPage extends StatefulWidget {
 }
 
 class _SecondPageState extends State<SecondPage> {
+
+  void updateFutureInfo (postCode){
+    API LocData = new API(postCode);
+    Map<String, Map<String, dynamic>> data = LocData.getFutureData();
+    print(data);
+
+
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,36 +197,144 @@ class _SecondPageState extends State<SecondPage> {
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             crossAxisCount: 1,
+            childAspectRatio: 7,
             children: <Widget>[
+
+              Container(
+                padding: const EdgeInsets.all(16),
+                height: 150,
+                decoration: BoxDecoration(
+                  color: Colors.teal[100],
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,  // changed to start for left alignment
+                        children: const [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 8),
+                              Text('Monday '),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Bottom Left
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 8),
+                              Text('H: L:'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Center
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.water_drop),
+                              SizedBox(width: 8),
+                              Text('Rainfall ...%'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Right (fourth Expanded)
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: const [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+
+                              SizedBox(width: 8),
+                              DynamicWeatherIcon(icon: WeatherIcons.rain_wind, size: 25,),
+                              Text('...mm'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+,
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.teal[100],
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: const Text('Monday', style: TextStyle(fontSize: 18)),
+              ),
+
               Container(
                 padding: const EdgeInsets.all(8),
                 color: Colors.teal[100],
-                child: const Text("Monday"),
+                child: const Text("Tuesday"),
               ),
               Container(
                 padding: const EdgeInsets.all(8),
                 color: Colors.teal[200],
-                child: const Text('Monday'),
+                child: const Text('Wednesday'),
               ),
               Container(
                 padding: const EdgeInsets.all(8),
                 color: Colors.teal[300],
-                child: const Text('Monday'),
+                child: const Text('Thursday'),
               ),
               Container(
                 padding: const EdgeInsets.all(8),
                 color: Colors.teal[400],
-                child: const Text('Monday'),
+                child: const Text('Friday'),
               ),
               Container(
                 padding: const EdgeInsets.all(8),
                 color: Colors.teal[500],
-                child: const Text('Monday'),
+                child: const Text('Saturday'),
               ),
               Container(
                 padding: const EdgeInsets.all(8),
                 color: Colors.teal[600],
-                child: const Text('Monday'),
+                child: const Text('Sunday'),
               ),
             ],
           ),
