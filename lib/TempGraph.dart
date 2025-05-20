@@ -39,6 +39,10 @@ class TempGraph extends StatelessWidget {
               minY: minTemp.floorToDouble(),
               maxY: maxTemp.ceilToDouble(),
               borderData: FlBorderData(show: false),
+              gridData: FlGridData(
+                drawVerticalLine: false,
+                horizontalInterval: 5,
+              ),
               titlesData: FlTitlesData (
                 rightTitles: AxisTitles(
                   sideTitles: SideTitles(
@@ -50,15 +54,33 @@ class TempGraph extends StatelessWidget {
                       showTitles: false
                   )
                 ),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: 10,
+                    reservedSize: 30
+                  )
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: 2,
+                    reservedSize: 40
+                  )
+                )
               ),
               lineTouchData: LineTouchData(
                 enabled: false
               ),
               lineBarsData: [
               LineChartBarData(
+                dotData: FlDotData(
+                    show: false
+                ),
                 color: Colors.red,
                 spots: dataPoints,
-                isCurved: true
+                isCurved: true,
+                curveSmoothness: 0.3
               )]
             )
           );
