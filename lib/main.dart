@@ -56,7 +56,7 @@ class WeatherHomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
       title: Text(title),
-      backgroundColor: Colors.transparent,
+      backgroundColor: Color(0xFFefd98a),
       elevation: 0,
       actions: [
         // ── Navigation button that pushes MyHomePage ──
