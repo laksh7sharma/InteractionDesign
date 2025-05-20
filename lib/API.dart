@@ -21,7 +21,7 @@ import 'dart:convert';
 class API {
 
 late final String _url;
-Map<String, dynamic> _data;
+late Map<String, dynamic> _data;
 // Map<String, dynamic> _data;
 
 /// Returns a map containing yesterday's weather summary.
@@ -87,6 +87,12 @@ Future<Map<String, dynamic>> getTodayOverallInfo() async {
 /// Returns a JSON structure with keys from 0 to 23 representing each hour of the day.
 /// Each value is a nested map with keys: "temperature", "rainfall", and "conditions".
 Future<Map<int, Map<String, dynamic>>> getHourlyData() async {
+
+  if (_data == null) {
+    await _fetchData(); // Fetch data if not yet initialized
+  }
+
+
   List<dynamic> hours = _data['days'][0]['hours'];
 
   Map<int, Map<String, dynamic>> result = {};
@@ -132,7 +138,7 @@ API(String postCode) {
     _url =
         "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/$formattedPostCode?unitGroup=us&key=TB7ZNBTHMPNQXYBA5ZW3HXQQ4&contentType=json";
 
-    _fetchData();
+    // _fetchData();
   }
 
 // Asynchronous method to fetch and print the weather data
