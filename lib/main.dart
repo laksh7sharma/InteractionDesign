@@ -33,27 +33,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Weather App',
       theme: ThemeData(
-        // This is the theme of your application.
-        // 
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        primarySwatch: Colors.blue,
       ),
-
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const WeatherHomePage(title: 'Weather Dashboard'),
     /// Define the app routes
     initialRoute: '/',
     routes: {
@@ -63,6 +47,222 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class WeatherHomePage extends StatelessWidget {
+  final String title;
+  const WeatherHomePage({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+      title: Text(title),
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      actions: [
+        // ── Navigation button that pushes MyHomePage ──
+        IconButton(
+          icon: const Icon(Icons.arrow_forward),
+          tooltip: 'Go to Counter Page',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const SecondPage(),
+              ),
+            );
+          },
+        ),
+      ],
+    ),
+      extendBodyBehindAppBar: true,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF86ca97),
+              Color(0xFFefd98a),
+            ],
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // LOCATION section
+                const Text(
+                  'LOCATION',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // YESTERDAY and TODAY in a row
+                Row(
+                  children: [
+                    // YESTERDAY section
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'YESTERDAY',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: const Color(0x55303030),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'SUMMARY',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // TODAY section
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'TODAY',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: const Color(0x55303030),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'SUMMARY',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Divider line
+                Container(
+                  height: 2,
+                  color: Colors.white.withOpacity(0.5),
+                ),
+                const SizedBox(height: 20),
+
+                // TEMPERATURE GRAPH and WEATHER ICONS section
+                const Text(
+                  'TEMPERATURE GRAPH',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    color: const Color(0x55909090),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  'WEATHER ICONS',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Divider line
+                Container(
+                  height: 2,
+                  color: Colors.white.withOpacity(0.5),
+                ),
+                const SizedBox(height: 20),
+
+                // RAINFALL GRAPHS and ALERTS section
+                const Text(
+                  'RAINFALL GRAPHS',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  'ALERTS',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -168,6 +368,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class SecondPage extends StatefulWidget {
   const SecondPage({Key? key}) : super(key: key);
+  final String title = 'Second Page';
   @override
   _SecondPageState createState() => _SecondPageState();
 }
@@ -187,9 +388,16 @@ class _SecondPageState extends State<SecondPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Future Overview"),
+        // TRY THIS: Try changing the color here to a specific color (to
+        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+        // change color while the other colors stay the same.
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+        
       ),
-      body: Stack( //use flutter_neumorphic: ^3.3.0??
+        body: Stack( //use flutter_neumorphic: ^3.3.0??
         children: [
           GridView.count(
             primary: false,
