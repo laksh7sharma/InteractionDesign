@@ -3,7 +3,7 @@ import "API.dart";
 import 'alerts.dart';
 import 'package:weather_icons/weather_icons.dart';
 
-
+    
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().init();
