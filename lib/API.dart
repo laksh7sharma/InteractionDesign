@@ -27,7 +27,7 @@ late Map<String, dynamic> _data;
 /// Returns a map containing yesterday's weather summary.
 /// The map has keys: "rainfall", "lowTemperature", and "highTemperature",
 /// corresponding to total rainfall, yesterday's low temperature, and yesterday's high temperature.
-Future<Map<String, dynamic>> getYesterdaySummary() async {
+Map<String, dynamic> getYesterdaySummary() {
   List<dynamic> hours = _data['days'][0]['hours'];
   int range = 6; // Using 00:00 to 05:00 as a proxy for yesterday
 
@@ -55,7 +55,7 @@ Future<Map<String, dynamic>> getYesterdaySummary() async {
 /// Returns a JSON structure containing today’s overall weather information.
 /// Keys: "currentTemperature", "feelsLikeTemperature", "windSpeed", "windDirection",
 /// "lowTemperature", "highTemperature", "frostPresent", "extremeWindsPresent".
-Future<Map<String, dynamic>> getTodayOverallInfo() async {
+Map<String, dynamic> getTodayOverallInfo() {
   var today = _data['days'][0];
   var hours = today['hours'];
   int currentHour = DateTime.now().hour;
@@ -86,7 +86,7 @@ Future<Map<String, dynamic>> getTodayOverallInfo() async {
 
 /// Returns a JSON structure with keys from 0 to 23 representing each hour of the day.
 /// Each value is a nested map with keys: "temperature", "rainfall", and "conditions".
-Future<Map<int, Map<String, dynamic>>> getHourlyData() async {
+Map<int, Map<String, dynamic>> getHourlyData() {
 
   // if (_data == null) {
   //   await _fetchData(); // Fetch data if not yet initialized
