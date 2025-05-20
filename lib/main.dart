@@ -189,22 +189,24 @@ class _SecondPageState extends State<SecondPage> {
       appBar: AppBar(
         title: Text("Future Overview"),
       ),
-      body: Stack(
+      body: Stack( //use flutter_neumorphic: ^3.3.0??
         children: [
           GridView.count(
             primary: false,
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             crossAxisCount: 1,
             childAspectRatio: 7,
             children: <Widget>[
 
+              //test widget
+
               Container(
                 padding: const EdgeInsets.all(16),
-                height: 150,
+                height: MediaQuery.of(context).size.height * 0.2,
                 decoration: BoxDecoration(
-                  color: Colors.teal[100],
+                  color: Colors.teal[100], //could add gradient?
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
@@ -226,7 +228,7 @@ class _SecondPageState extends State<SecondPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               SizedBox(width: 8),
-                              Text('Monday '),
+                              Text('Monday'), //need to add text style
                             ],
                           ),
                         ],
@@ -236,14 +238,15 @@ class _SecondPageState extends State<SecondPage> {
                     // Bottom Left
                     Expanded(
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+
                         children: const [
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               SizedBox(width: 8),
-                              Text('H: L:'),
+                              Text('H: 25... L:12...'),
                             ],
                           ),
                         ],
@@ -257,9 +260,9 @@ class _SecondPageState extends State<SecondPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: const [
                           Row(
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisSize: MainAxisSize.max,
                             children: [
-                              Icon(Icons.water_drop),
+                              Icon(Icons.water_drop, color: Colors.blueAccent),
                               SizedBox(width: 8),
                               Text('Rainfall ...%'),
                             ],
@@ -271,8 +274,9 @@ class _SecondPageState extends State<SecondPage> {
                     // Right (fourth Expanded)
                     Expanded(
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+
                         children: const [
                           Row(
                             mainAxisSize: MainAxisSize.min,
