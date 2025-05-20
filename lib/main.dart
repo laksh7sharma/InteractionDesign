@@ -274,16 +274,32 @@ class SecondPage extends StatefulWidget {
   _SecondPageState createState() => _SecondPageState();
 }
 
-class _SecondPageState extends State<SecondPage> {
+class _SecondPageState extends State<SecondPage>  {
+  final API locData = API('EN5 5DS');
+  String lowTemp = '';
+  String highTemp = '';
+  String conditions = '';
+  bool loading = true;
 
-  void updateFutureInfo (postCode){
-    API LocData = new API(postCode);
-    Map<String, Map<String, dynamic>> data = LocData.getFutureData();
-    print(data);
-
-
-
+  @override
+  void initState() {
+    super.initState();
+    loadWeatherData(1);
   }
+
+  Future<void> loadWeatherData(int i) async {
+    Map<String, Map<String, dynamic>> data = await locData.getFutureData();
+    final day = data[i];
+    setState(() {
+      lowTemp = day?["lowTemperature"].toString() ?? 'N/A';
+      print(lowTemp);
+      highTemp = day?["highTemperature"].toString() ?? 'N/A';
+      conditions = day?["conditions"] ?? 'N/A';
+      loading = false;
+    });
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -350,12 +366,17 @@ class _SecondPageState extends State<SecondPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
 
-                        children: const [
+                        children: [
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               SizedBox(width: 8),
-                              Text('H: 25... L:12...'),
+                              Text("L: $lowTemp°"),
+                              /*if LocData.FutureInfo() != null
+                                ? Text(LocData.FutureInfo()) // Display data
+                              : Text("Loading...")
+                              //Text(LocData.),*/
+
                             ],
                           ),
                         ],
