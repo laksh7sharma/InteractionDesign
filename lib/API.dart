@@ -21,7 +21,7 @@ import 'dart:convert';
 class API {
 
 late final String _url;
-late final Map<String, dynamic> _data;
+late Map<String, dynamic> _data;
 
 /// Returns a map containing yesterday's weather summary.
 /// The map has keys: "rainfall", "lowTemperature", and "highTemperature",
