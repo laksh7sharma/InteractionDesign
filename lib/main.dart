@@ -248,13 +248,40 @@ class WeatherHomePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Container(
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[400],
-                    borderRadius: BorderRadius.circular(8),
+                ValueListenableBuilder<List<AlertData>>(
+        valueListenable: alertsNotifier,
+        builder: (context, alerts, _) {
+          if (alerts.isEmpty) {
+            // keep the space reserved even when no alerts
+            return SizedBox(height: 60);
+          }
+          return Container(
+            height: 60,
+            color: Colors.red,              // solid red
+            child: PageView.builder(         // swipe if >1 alert
+              itemCount: alerts.length,
+              itemBuilder: (ctx, i) {
+                final a = alerts[i];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Center(
+                    child: Text(
+                      '${a.title}: ${a.message}',
+                      style: const TextStyle(
+                        color: Colors.white,     // white text
+                        fontSize: 14,            // smaller font
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
+                );
+              },
+            ),
+          );
+        },
+      ),
               ],
             ),
           ),
