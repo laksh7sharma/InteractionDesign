@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:interaction_design/TempGraph.dart';
 import "API.dart";
 import 'alerts.dart';
 import 'package:weather_icons/weather_icons.dart';
-
+import "TempGraph.dart";
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -196,6 +197,14 @@ class WeatherHomePage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: const Color(0x55909090),
                     borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: <Widget>[Container(
+                      width: 1000,
+                      margin: EdgeInsets.only(top: 30, right: 20),
+                      child: TempGraph("CB1 1DQ"),
+                    )],
                   ),
                 ),
                 const SizedBox(height: 15),

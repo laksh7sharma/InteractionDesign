@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'API.dart';
+import 'dart:math';
 
 class TempGraph extends StatelessWidget {
   String postcode = "";
@@ -19,16 +20,45 @@ class TempGraph extends StatelessWidget {
           if (hourlyData == null) {
             return const CircularProgressIndicator();
           }
+          double maxTemp = -double.maxFinite;
+          double minTemp = double.maxFinite;
           List<FlSpot> dataPoints = [];
           for (MapEntry<int, Map<String, dynamic>> hourEntry in hourlyData.entries) {
-            FlSpot dataPoint = FlSpot(hourEntry.key.toDouble(), hourEntry.value["temperature"].toDouble());
+            double temp = hourEntry.value["temperature"].toDouble();
+            FlSpot dataPoint = FlSpot(hourEntry.key.toDouble(), temp);
+            if (temp < minTemp) {
+              minTemp = temp;
+            }
+            if (temp > maxTemp) {
+              maxTemp = temp;
+            }
             dataPoints.add(dataPoint);
           }
           return LineChart(
             LineChartData(
+              minY: minTemp.floorToDouble(),
+              maxY: maxTemp.ceilToDouble(),
+              borderData: FlBorderData(show: false),
+              titlesData: FlTitlesData (
+                rightTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: false
+                  )
+                ),
+                topTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                      showTitles: false
+                  )
+                ),
+              ),
+              lineTouchData: LineTouchData(
+                enabled: false
+              ),
               lineBarsData: [
               LineChartBarData(
-                spots: [FlSpot(1, 2)]
+                color: Colors.red,
+                spots: dataPoints,
+                isCurved: true
               )]
             )
           );
