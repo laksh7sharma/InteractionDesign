@@ -82,64 +82,65 @@ class _AlertCarouselState extends State<_AlertCarousel> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 100,           // smaller height
-      color: Colors.red,     // solid red, no rounding
-      child: PageView.builder(
-        controller: _controller,
-        itemCount: _alerts.length,
-        onPageChanged: (newPage) {
-          // if we swiped forward, drop the alert we just left behind
-          if (newPage > _currentPage) {
-            setState(() {
-              _alerts.removeAt(0);
-            });
-            // jump back to page 0 so the next alert is in view
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (_alerts.isNotEmpty) _controller.jumpToPage(0);
-            });
-          }
-          _currentPage = newPage;
-        },
-        itemBuilder: (ctx, i) {
-          final alert = _alerts[i];
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        alert.title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        alert.message,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+Widget build(BuildContext context) {
+  return Padding(
+    // 1) gap from bottom and sides
+    padding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+    child: ClipRRect(
+      // 2) rounded corners
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        height: 100,
+        color: Colors.red,
+        child: PageView.builder(
+          controller: _controller,
+          itemCount: _alerts.length,
+          onPageChanged: (newPage) {
+            if (newPage > _currentPage) {
+              setState(() => _alerts.removeAt(0));
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (_alerts.isNotEmpty) _controller.jumpToPage(0);
+              });
+            }
+            _currentPage = newPage;
+          },
+          itemBuilder: (ctx, i) {
+            final alert = _alerts[i];
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                // 3a) center items horizontally
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    alert.title,
+                    // 3b) center text inside its box
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                // no “X” button – users can swipe horizontally or drag down
-              ],
-            ),
-          );
-        },
+                  const SizedBox(height: 4),
+                  Text(
+                    alert.message,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   @override
   void dispose() {
