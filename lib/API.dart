@@ -23,10 +23,10 @@ class API {
 late final String _url;
 late final Map<String, dynamic> _data;
 
-// Returns a map containing yesterday's weather summary.
-// The map has keys: "rainfall", "lowTemperature", and "highTemperature",
-// corresponding to total rainfall, yesterday's low temperature, and yesterday's high temperature.
-Map<String, dynamic> getYesterdaySummary() {
+/// Returns a map containing yesterday's weather summary.
+/// The map has keys: "rainfall", "lowTemperature", and "highTemperature",
+/// corresponding to total rainfall, yesterday's low temperature, and yesterday's high temperature.
+Future<Map<String, dynamic>> getYesterdaySummary() async {
   List<dynamic> hours = _data['days'][0]['hours'];
   int range = 6; // Using 00:00 to 05:00 as a proxy for yesterday
 
@@ -51,11 +51,10 @@ Map<String, dynamic> getYesterdaySummary() {
   };
 }
 
-
-// Returns a json structure containing today’s overall weather information.
-// The json structure has keys: "currentTemperature", "feelsLikeTemperature", "windSpeed", "frostPresent", "extremeWindsPresent"
-// "windDirection", "lowTemperature", and "highTemperature".
-Map<String, dynamic> getTodayOverallInfo() {
+/// Returns a JSON structure containing today’s overall weather information.
+/// Keys: "currentTemperature", "feelsLikeTemperature", "windSpeed", "windDirection",
+/// "lowTemperature", "highTemperature", "frostPresent", "extremeWindsPresent".
+Future<Map<String, dynamic>> getTodayOverallInfo() async {
   var today = _data['days'][0];
   var hours = today['hours'];
   int currentHour = DateTime.now().hour;
@@ -84,10 +83,9 @@ Map<String, dynamic> getTodayOverallInfo() {
   };
 }
 
-// Returns a json structure with keys from 0 to 23 representing each hour of the day.
-// Each value is a nested map with keys "temperature", "rainfall", and "conditions",
-// representing hourly temperature, rainfall, and weather condition (e.g., "cloudy").
-Map<int, Map<String, dynamic>> getHourlyData() {
+/// Returns a JSON structure with keys from 0 to 23 representing each hour of the day.
+/// Each value is a nested map with keys: "temperature", "rainfall", and "conditions".
+Future<Map<int, Map<String, dynamic>>> getHourlyData() async {
   List<dynamic> hours = _data['days'][0]['hours'];
 
   Map<int, Map<String, dynamic>> result = {};
@@ -105,20 +103,21 @@ Map<int, Map<String, dynamic>> getHourlyData() {
 }
 
 
-// Returns a json structure which has keys "1", "2", .. "7" and values which are json structures representing the weather for the next 7 days. 
-// Each structure contains "lowTemperature", "highTemperature", "rainfall", and "conditions".
-Map<String, Map<String, dynamic>> getFutureData() {
+/// Returns a JSON structure with keys "1" to "7" and values representing daily forecasts.
+/// Each structure contains "lowTemperature", "highTemperature", "rainfall", and "conditions".
+Future<Map<String, Map<String, dynamic>>> getFutureData() async {
   List<dynamic> days = _data['days'];
+
   Map<String, Map<String, dynamic>> result = {};
 
-  for (int i = 1; i <= 7; i++) {
-    var day = days[i];
+  for (int i = 1; i <= 7 && i < days.length; i++) {
+    var dayData = days[i];
 
     result[i.toString()] = {
-      "lowTemperature": day["tempmin"],
-      "highTemperature": day["tempmax"],
-      "rainfall": day["precip"],
-      "conditions": day["conditions"]
+      "lowTemperature": dayData["tempmin"],
+      "highTemperature": dayData["tempmax"],
+      "rainfall": dayData["precip"],
+      "conditions": dayData["conditions"]
     };
   }
 
