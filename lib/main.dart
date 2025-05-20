@@ -55,8 +55,11 @@ class WeatherHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: Text(title),
-      backgroundColor: Color(0xFFefd98a),
+      title: Text(title,style: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,),),
+      backgroundColor: Color(0xff91ca95),
       elevation: 0,
       actions: [
         // ── Navigation button that pushes MyHomePage ──
@@ -94,7 +97,7 @@ class WeatherHomePage extends StatelessWidget {
               children: [
                 // LOCATION section
                 const Text(
-                  'LOCATION',
+                  'Location',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -112,7 +115,7 @@ class WeatherHomePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'YESTERDAY',
+                            'Yesterday',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -296,7 +299,8 @@ class WeatherHomePage extends StatelessWidget {
 
 class SecondPage extends StatefulWidget {
   const SecondPage({Key? key}) : super(key: key);
-  final String title = 'Second Page';
+  final String title = 'Future Overview';
+
   @override
   _SecondPageState createState() => _SecondPageState();
 }
@@ -346,6 +350,7 @@ Widget build(BuildContext context) {
         final API locData = snapshot.data!;
         final data = locData.getFutureData();
         final day1 = data["1"];
+        final day2 = data["2"];
 
         final String lowTemp = day1?["lowTemperature"].toString() ?? 'N/A';
         final String highTemp = day1?["highTemperature"].toString() ?? 'N/A';
@@ -354,8 +359,13 @@ Widget build(BuildContext context) {
 
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: Text(widget.title),
+            //backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            title: Text(widget.title, style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,),),
+              backgroundColor: Color(0xff91ca95),
+
           ),
           body: Stack(
             children: [
@@ -372,7 +382,7 @@ Widget build(BuildContext context) {
                     padding: const EdgeInsets.all(16),
                     height: MediaQuery.of(context).size.height * 0.2,
                     decoration: BoxDecoration(
-                      color: Colors.teal[100],
+                      color: Color(0xff91ca95),
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
@@ -427,8 +437,10 @@ Widget build(BuildContext context) {
                             children: [
                               Row(
                                 mainAxisSize: MainAxisSize.max,
-                                children: const [
-                                  Icon(Icons.water_drop, color: Colors.blueAccent),
+                                children: [
+                                  Icon(Icons.water_drop, color: Color(
+                                      0xff8ae0ef), ),
+                                  Text('$precip mm'),
                                   SizedBox(width: 8),
                                 ],
                               ),
@@ -445,9 +457,9 @@ Widget build(BuildContext context) {
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: 10),
                                   const DynamicWeatherIcon(icon: WeatherIcons.rain_wind, size: 25),
-                                  Text('$precip mm'),
+                                  Text('$conditions'),
                                 ],
                               ),
                             ],
@@ -458,12 +470,12 @@ Widget build(BuildContext context) {
                   ),
 
                   // Other Day Cards
-                  for (var day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+                  /*for (var day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
                     Container(
                       padding: const EdgeInsets.all(8),
                       color: Colors.teal[100 + 100 * (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].indexOf(day))],
                       child: Text(day, style: const TextStyle(fontSize: 18)),
-                    ),
+                    ),*/
                 ],
               ),
               Positioned(
