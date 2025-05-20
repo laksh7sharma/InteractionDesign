@@ -21,7 +21,8 @@ import 'dart:convert';
 class API {
 
 late final String _url;
-late Map<String, dynamic> _data;
+Map<String, dynamic> _data;
+// Map<String, dynamic> _data;
 
 /// Returns a map containing yesterday's weather summary.
 /// The map has keys: "rainfall", "lowTemperature", and "highTemperature",
@@ -140,7 +141,7 @@ Future<void> _fetchData() async {
       final response = await http.get(Uri.parse(_url));
 
       if (response.statusCode == 200) {
-        _data = jsonDecode(response.body);
+        Map<String, dynamic> _data = jsonDecode(response.body);
         print("Weather data for the given postcode:");
         // print(jsonEncode(data)); // Pretty raw, you can refine this later
       } else {

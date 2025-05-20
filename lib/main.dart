@@ -306,6 +306,7 @@ class _SecondPageState extends State<SecondPage>  {
   String lowTemp = '';
   String highTemp = '';
   String conditions = '';
+  String precip = '';
   bool loading = true;
 
   @override
@@ -322,6 +323,7 @@ class _SecondPageState extends State<SecondPage>  {
       print(lowTemp);
       highTemp = day?["highTemperature"].toString() ?? 'N/A';
       conditions = day?["conditions"] ?? 'N/A';
+      precip = day?["precip"]?? 'N/A';
       loading = false;
     });
   }
@@ -398,11 +400,7 @@ class _SecondPageState extends State<SecondPage>  {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               SizedBox(width: 8),
-                              Text("L: $lowTemp°"),
-                              /*if LocData.FutureInfo() != null
-                                ? Text(LocData.FutureInfo()) // Display data
-                              : Text("Loading...")
-                              //Text(LocData.),*/
+                              Text("L: $lowTemp° H: $highTemp°"),
 
                             ],
                           ),
@@ -421,7 +419,7 @@ class _SecondPageState extends State<SecondPage>  {
                             children: [
                               Icon(Icons.water_drop, color: Colors.blueAccent),
                               SizedBox(width: 8),
-                              Text('Rainfall ...%'),
+                              //Text("Rainfall: $precip"),
                             ],
                           ),
                         ],
