@@ -3,7 +3,7 @@ import "API.dart";
 import 'alerts.dart';
 import 'package:weather_icons/weather_icons.dart';
 
-    
+
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().init();
@@ -302,7 +302,9 @@ class SecondPage extends StatefulWidget {
 }
 
 class _SecondPageState extends State<SecondPage>  {
-  final API locData = API('EN5 5DS');
+
+  late Future<API> _locDataFuture;
+
   String lowTemp = '';
   String highTemp = '';
   String conditions = '';
@@ -312,208 +314,180 @@ class _SecondPageState extends State<SecondPage>  {
   @override
   void initState() {
     super.initState();
-    loadWeatherData(1);
-  }
-
-  Future<void> loadWeatherData(int i) async {
-    Map<String, Map<String, dynamic>> data = await locData.getFutureData();
-    final day = data[i];
-    setState(() {
-      lowTemp = day?["lowTemperature"].toString() ?? 'N/A';
-      print(lowTemp);
-      highTemp = day?["highTemperature"].toString() ?? 'N/A';
-      conditions = day?["conditions"] ?? 'N/A';
-      precip = day?["precip"]?? 'N/A';
-      loading = false;
-    });
+    _locDataFuture = API.create('EN5 5DS');
   }
 
 
+  Future<void> loadWeatherData(API locData, int i) async {
+  Map<String, Map<String, dynamic>> data = await locData.getFutureData();
+  final day = data[i.toString()];
+  setState(() {
+    lowTemp = day?["lowTemperature"].toString() ?? 'N/A';
+    print(lowTemp);
+    highTemp = day?["highTemperature"].toString() ?? 'N/A';
+    conditions = day?["conditions"].toString() ?? 'N/A';
+    precip = day?["rainfall"].toString() ?? 'N/A';
+    loading = false;
+  });
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-        
-      ),
-        body: Stack( //use flutter_neumorphic: ^3.3.0??
-        children: [
-          GridView.count(
-            primary: false,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            crossAxisCount: 1,
-            childAspectRatio: 7,
-            children: <Widget>[
 
-              //test widget
 
-              Container(
-                padding: const EdgeInsets.all(16),
-                height: MediaQuery.of(context).size.height * 0.2,
-                decoration: BoxDecoration(
-                  color: Colors.teal[100], //could add gradient?
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
+@override
+Widget build(BuildContext context) {
+  return FutureBuilder<API>(
+    future: _locDataFuture,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Center(child: Text('Error: ${snapshot.error}'));
+      } else {
+        final API locData = snapshot.data!;
+        final data = locData.getFutureData();
+        final day1 = data["1"];
+
+        final String lowTemp = day1?["lowTemperature"].toString() ?? 'N/A';
+        final String highTemp = day1?["highTemperature"].toString() ?? 'N/A';
+        final String precip = day1?["rainfall"].toString() ?? '...';
+        final String conditions = day1?["conditions"].toString() ?? '';
+
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            title: Text(widget.title),
+          ),
+          body: Stack(
+            children: [
+              GridView.count(
+                primary: false,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                crossAxisCount: 1,
+                childAspectRatio: 7,
+                children: <Widget>[
+                  // Weather Card
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    height: MediaQuery.of(context).size.height * 0.2,
+                    decoration: BoxDecoration(
+                      color: Colors.teal[100],
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                  ],
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Day Label
+                        const Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(width: 8),
+                                  Text('Monday'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Temperature
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(width: 8),
+                                  Text("L: $lowTemp° H: $highTemp°"),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Precip Icon
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: const [
+                                  Icon(Icons.water_drop, color: Colors.blueAccent),
+                                  SizedBox(width: 8),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Conditions Icon & Rainfall
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const SizedBox(width: 8),
+                                  const DynamicWeatherIcon(icon: WeatherIcons.rain_wind, size: 25),
+                                  Text('$precip mm'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Other Day Cards
+                  for (var day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      color: Colors.teal[100 + 100 * (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].indexOf(day))],
+                      child: Text(day, style: const TextStyle(fontSize: 18)),
+                    ),
+                ],
+              ),
+              Positioned(
+                bottom: 20,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: ElevatedButton(
+                    child: const Text("Go back"),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(width: 8),
-                              Text('Monday'), //need to add text style
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Bottom Left
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(width: 8),
-                              Text("L: $lowTemp° H: $highTemp°"),
-
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Center
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Icon(Icons.water_drop, color: Colors.blueAccent),
-                              SizedBox(width: 8),
-                              //Text("Rainfall: $precip"),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Right (fourth Expanded)
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-
-                        children: const [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-
-                              SizedBox(width: 8),
-                              DynamicWeatherIcon(icon: WeatherIcons.rain_wind, size: 25,),
-                              Text('...mm'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              )
-,
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.teal[100],
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 6,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: const Text('Monday', style: TextStyle(fontSize: 18)),
-              ),
-
-              Container(
-                padding: const EdgeInsets.all(8),
-                color: Colors.teal[100],
-                child: const Text("Tuesday"),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                color: Colors.teal[200],
-                child: const Text('Wednesday'),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                color: Colors.teal[300],
-                child: const Text('Thursday'),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                color: Colors.teal[400],
-                child: const Text('Friday'),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                color: Colors.teal[500],
-                child: const Text('Saturday'),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                color: Colors.teal[600],
-                child: const Text('Sunday'),
               ),
             ],
           ),
-          Positioned( // Proper placement within Stack
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: ElevatedButton(
-                child: Text("Go back"),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        );
+      }
+    },
+  );
+}
+
+
 }
 
 class InfoBox extends StatefulWidget {

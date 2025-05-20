@@ -88,9 +88,9 @@ Future<Map<String, dynamic>> getTodayOverallInfo() async {
 /// Each value is a nested map with keys: "temperature", "rainfall", and "conditions".
 Future<Map<int, Map<String, dynamic>>> getHourlyData() async {
 
-  if (_data == null) {
-    await _fetchData(); // Fetch data if not yet initialized
-  }
+  // if (_data == null) {
+  //   await _fetchData(); // Fetch data if not yet initialized
+  // }
 
 
   List<dynamic> hours = _data['days'][0]['hours'];
@@ -112,7 +112,7 @@ Future<Map<int, Map<String, dynamic>>> getHourlyData() async {
 
 /// Returns a JSON structure with keys "1" to "7" and values representing daily forecasts.
 /// Each structure contains "lowTemperature", "highTemperature", "rainfall", and "conditions".
-Future<Map<String, Map<String, dynamic>>> getFutureData() async {
+Map<String, Map<String, dynamic>> getFutureData() {
   List<dynamic> days = _data['days'];
 
   Map<String, Map<String, dynamic>> result = {};
@@ -133,29 +133,58 @@ Future<Map<String, Map<String, dynamic>>> getFutureData() async {
 
 
 // Initializer - postCode is a string of the form "XXX XXX"
-API(String postCode) {
+// API(String postCode) {
+//     String formattedPostCode = postCode.replaceAll(' ', '%20');
+//     _url =
+//         "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/$formattedPostCode?unitGroup=us&key=TB7ZNBTHMPNQXYBA5ZW3HXQQ4&contentType=json";
+
+//     _fetchData();
+//   }
+
+// // Asynchronous method to fetch and print the weather data
+// Future<void> _fetchData() async {
+//     try {
+//       final response = await http.get(Uri.parse(_url));
+
+//       if (response.statusCode == 200) {
+//         Map<String, dynamic> _data = jsonDecode(response.body);
+//         print("Weather data for the given postcode:");
+//         // print(jsonEncode(data)); // Pretty raw, you can refine this later
+//       } else {
+//         print("Failed to load data. Status code: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       print("Error occurred: $e");
+//     }
+//   }
+
+
+  // Private constructor
+  API._(this._url, this._data);
+
+  // Async factory constructor
+  static Future<API> create(String postCode) async {
     String formattedPostCode = postCode.replaceAll(' ', '%20');
-    _url =
+    String url =
         "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/$formattedPostCode?unitGroup=us&key=TB7ZNBTHMPNQXYBA5ZW3HXQQ4&contentType=json";
 
-    // _fetchData();
-  }
-
-// Asynchronous method to fetch and print the weather data
-Future<void> _fetchData() async {
     try {
-      final response = await http.get(Uri.parse(_url));
+      final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
-        Map<String, dynamic> _data = jsonDecode(response.body);
-        print("Weather data for the given postcode:");
-        // print(jsonEncode(data)); // Pretty raw, you can refine this later
+        final data = jsonDecode(response.body);
+        return API._(url, data);
       } else {
-        print("Failed to load data. Status code: ${response.statusCode}");
+        throw Exception("Failed to load data. Status code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error occurred: $e");
+      throw Exception("Error occurred while fetching weather data: $e");
     }
+  }
+
+  // Example method that uses _data
+  Map<String, dynamic> getTodaySummary() {
+    return _data['days'][0];
   }
 
 }
