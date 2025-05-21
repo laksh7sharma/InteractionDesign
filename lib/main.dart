@@ -1,11 +1,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:interaction_design/TempGraph.dart';
+import 'package:interaction_design/temp_graph.dart';
 import 'API.dart';
 import 'alerts.dart';
 import 'package:weather_icons/weather_icons.dart';
-import 'TempGraph.dart';
+import 'temp_graph.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
