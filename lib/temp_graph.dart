@@ -57,21 +57,30 @@ class TempGraph extends StatelessWidget {
         // Build chart
         return LineChart(
           LineChartData(
-            minY: minTemp.floorToDouble(),
-            maxY: maxTemp.ceilToDouble(),
+            minY: (minTemp/2).floorToDouble()*2,
+            maxY: (maxTemp/2).ceilToDouble()*2,
             borderData: FlBorderData(show: false),
             gridData: FlGridData(
               drawVerticalLine: false,
-              horizontalInterval: 5,
+              horizontalInterval: 2,
+              checkToShowHorizontalLine: (value) => value %2 == 0
             ),
             titlesData: FlTitlesData(
               rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
               topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
               leftTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: true, interval: 10, reservedSize: 30),
+                sideTitles: SideTitles(showTitles: true, interval: 4, reservedSize: 30),
               ),
               bottomTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: true, interval: 2, reservedSize: 40),
+                sideTitles: SideTitles(
+                    showTitles: true, interval: 2, reservedSize: 40,
+                    getTitlesWidget: (value, meta) {
+                      final hour = value.toInt();
+                      final label = '${hour.toString().padLeft(2, '0')}:00';
+                      return Container(padding: EdgeInsets.only(top: 10), child: Text(label, style: TextStyle(fontSize: 15)));
+                    }
+                  )
+
               ),
             ),
             lineTouchData: LineTouchData(enabled: false),
