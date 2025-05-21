@@ -34,7 +34,7 @@ class TempGraph extends StatelessWidget {
           return const Center(child: Text('No data'));
         }
 
-        // API is valid, so retrieve data about the coming day. 
+        // API is valid, so retrieve data about the coming day.
         final hourlyData = api.getHourlyData();  // type: Map<int, Map<String,dynamic>>?
 
         if (hourlyData == null || hourlyData.isEmpty) {
@@ -48,7 +48,7 @@ class TempGraph extends StatelessWidget {
 
         for (final entry in hourlyData.entries) {
           final hour = entry.key.toDouble();
-          final temp = (entry.value['temperature'] as num).toDouble();
+          final temp = ((entry.value['temperature'] as num).toDouble() - 32) * (5/9);
           dataPoints.add(FlSpot(hour, temp));
           if (temp < minTemp) minTemp = temp;
           if (temp > maxTemp) maxTemp = temp;
