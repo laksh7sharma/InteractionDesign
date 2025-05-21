@@ -61,6 +61,7 @@ class WeatherHomePage extends StatefulWidget {
 class _WeatherHomePageState extends State<WeatherHomePage> {
   final TextEditingController _postcodeController = TextEditingController();
   String? _savedPostcode;
+  String _currentPostcode = 'CB2 8PH';
   final RegExp _postcodeRegex = RegExp(
     r'^[A-Z]{1,2}\d{1,2}[A-Z]?\s*\d[A-Z]{2}$',
     caseSensitive: false,
@@ -69,22 +70,28 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
   @override
   void initState() {
     super.initState();
-    _loadSavedPostcode();
+    _loadSavedPostcode().then((_){
+    if (_savedPostcode != null) {
+        setState(() {
+          _currentPostcode = _savedPostcode!;
+          _postcodeController.text = _savedPostcode!;
+        });
+  }
+    });
   }
 
   Future<void> _loadSavedPostcode() async {
     final prefs = await SharedPreferences.getInstance();
-    final code = prefs.getString('uk_postcode');
-    if (code != null) {
-      _postcodeController.text = code;
-      setState(() => _savedPostcode = code);
-    }
+    _savedPostcode = prefs.getString('uk_postcode');
   }
 
   Future<void> _savePostcode(String value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('uk_postcode', value);
-    setState(() => _savedPostcode = value);
+    setState(() {
+      _savedPostcode = value;
+      _currentPostcode = value;
+    });
   }
 
   void _onPostcodeSubmitted(String value) {
@@ -94,7 +101,8 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Postcode saved: $trimmed')),
       );
-      // TODO: Trigger data fetch for `trimmed` postcode
+      // Trigger rebuild of temperature graph by updating state
+      setState(() {});
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Invalid UK postcode.')),
@@ -248,29 +256,32 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
 
                 // TEMPERATURE GRAPH and WEATHER ICONS section
                 const Text(
-                  'TEMPERATURE GRAPH',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                'TEMPERATURE GRAPH',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: const Color(0x55909090),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: <Widget>[Container(
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  color: const Color(0x55909090),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: <Widget>[
+                    Container(
                       width: 1000,
-                      margin: EdgeInsets.only(top: 30, right: 20),
-                      child: TempGraph("CB1 1DQ"),
-                    )],
-                  ),
+                      margin: const EdgeInsets.only(top: 30, right: 20),
+                      child: TempGraph(_currentPostcode),
+                    ),
+                  ],
                 ),
+              ),
+
                 const SizedBox(height: 15),
                 const Text(
                   'WEATHER ICONS',
