@@ -1,15 +1,18 @@
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:interaction_design/TempGraph.dart';
-import "API.dart";
+import 'API.dart';
 import 'alerts.dart';
 import 'package:weather_icons/weather_icons.dart';
-import "TempGraph.dart";
+import 'TempGraph.dart';
 
-Future<void> main() async{
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().init();
   runApp(const MyApp());
 }
+
 class DynamicWeatherIcon extends StatelessWidget {
   final IconData icon;
   final double size;
@@ -27,10 +30,10 @@ class DynamicWeatherIcon extends StatelessWidget {
     return BoxedIcon(icon, size: size, color: color);
   }
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -39,74 +42,135 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const WeatherHomePage(title: 'Weather Dashboard'),
-    /// Define the app routes
-    initialRoute: '/',
-    routes: {
-      '/second': (context) => const SecondPage(),
-    }
+      initialRoute: '/',
+      routes: {
+        '/second': (context) => const SecondPage(),
+      },
     );
   }
 }
 
-class WeatherHomePage extends StatelessWidget {
+class WeatherHomePage extends StatefulWidget {
   final String title;
   const WeatherHomePage({super.key, required this.title});
+
+  @override
+  State<WeatherHomePage> createState() => _WeatherHomePageState();
+}
+
+class _WeatherHomePageState extends State<WeatherHomePage> {
+  final TextEditingController _postcodeController = TextEditingController();
+  String? _savedPostcode;
+  final RegExp _postcodeRegex = RegExp(
+    r'^[A-Z]{1,2}\d{1,2}[A-Z]?\s*\d[A-Z]{2}$',
+    caseSensitive: false,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedPostcode();
+  }
+
+  Future<void> _loadSavedPostcode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final code = prefs.getString('uk_postcode');
+    if (code != null) {
+      _postcodeController.text = code;
+      setState(() => _savedPostcode = code);
+    }
+  }
+
+  Future<void> _savePostcode(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('uk_postcode', value);
+    setState(() => _savedPostcode = value);
+  }
+
+  void _onPostcodeSubmitted(String value) {
+    final trimmed = value.trim().toUpperCase();
+    if (_postcodeRegex.hasMatch(trimmed)) {
+      _savePostcode(trimmed);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Postcode saved: $trimmed')),
+      );
+      // TODO: Trigger data fetch for `trimmed` postcode
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid UK postcode.')),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _postcodeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: Text(title,style: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,),),
-      backgroundColor: Color(0xff91ca95),
-      elevation: 0,
-      actions: [
-        // ── Navigation button that pushes MyHomePage ──
-        IconButton(
-          icon: const Icon(Icons.arrow_forward),
-          tooltip: 'Go to Counter Page',
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const SecondPage(),
-              ),
-            );
-          },
-        ),
-      ],
-    ),
+        title: Text(widget.title),
+        backgroundColor: const Color(0xff91ca95),
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward),
+            tooltip: 'Go to Counter Page',
+            onPressed: () {
+              Navigator.pushNamed(context, '/second');
+            },
+          ),
+        ],
+      ),
       extendBodyBehindAppBar: true,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF86ca97),
-              Color(0xFFefd98a),
-            ],
+            colors: [Color(0xFF86ca97), Color(0xFFefd98a)],
           ),
         ),
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // LOCATION section
-                const Text(
-                  'Location',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // LOCATION section
+              const Text(
+                'Location',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _postcodeController,
+                decoration: InputDecoration(
+                  hintText: 'Enter UK postcode',
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.8),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
                   ),
                 ),
-                const SizedBox(height: 20),
-
+                textInputAction: TextInputAction.done,
+                onSubmitted: _onPostcodeSubmitted,
+              ),
+              if (_savedPostcode != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Saved postcode: $_savedPostcode',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ],
+              const SizedBox(height: 20),
                 // YESTERDAY and TODAY in a row
                 Row(
                   children: [
@@ -298,8 +362,7 @@ class WeatherHomePage extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
