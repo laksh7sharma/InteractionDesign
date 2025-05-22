@@ -1,14 +1,18 @@
+
 import 'package:flutter/material.dart';
-import "API.dart";
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:interaction_design/temp_graph.dart';
+import 'API.dart';
 import 'alerts.dart';
 import 'package:weather_icons/weather_icons.dart';
+import 'temp_graph.dart';
 
-
-Future<void> main() async{
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().init();
   runApp(const MyApp());
 }
+
 class DynamicWeatherIcon extends StatelessWidget {
   final IconData icon;
   final double size;
@@ -26,10 +30,10 @@ class DynamicWeatherIcon extends StatelessWidget {
     return BoxedIcon(icon, size: size, color: color);
   }
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -38,71 +42,143 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const WeatherHomePage(title: 'Weather Dashboard'),
-    /// Define the app routes
-    initialRoute: '/',
-    routes: {
-      '/second': (context) => const SecondPage(),
-    }
+      initialRoute: '/',
+      routes: {
+        '/second': (context) => const SecondPage(),
+      },
     );
   }
 }
 
-class WeatherHomePage extends StatelessWidget {
+class WeatherHomePage extends StatefulWidget {
   final String title;
   const WeatherHomePage({super.key, required this.title});
+
+  @override
+  State<WeatherHomePage> createState() => _WeatherHomePageState();
+}
+
+class _WeatherHomePageState extends State<WeatherHomePage> {
+  final TextEditingController _postcodeController = TextEditingController();
+  String? _savedPostcode;
+  String _currentPostcode = 'CB2 8PH';
+  final RegExp _postcodeRegex = RegExp(
+    r'^[A-Z]{1,2}\d{1,2}[A-Z]?\s*\d[A-Z]{2}$',
+    caseSensitive: false,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedPostcode().then((_){
+    if (_savedPostcode != null) {
+        setState(() {
+          _currentPostcode = _savedPostcode!;
+          _postcodeController.text = _savedPostcode!;
+        });
+  }
+    });
+  }
+
+  Future<void> _loadSavedPostcode() async {
+    final prefs = await SharedPreferences.getInstance();
+    _savedPostcode = prefs.getString('uk_postcode');
+  }
+
+  Future<void> _savePostcode(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('uk_postcode', value);
+    setState(() {
+      _savedPostcode = value;
+      _currentPostcode = value;
+    });
+  }
+
+  void _onPostcodeSubmitted(String value) {
+    final trimmed = value.trim().toUpperCase();
+    if (_postcodeRegex.hasMatch(trimmed)) {
+      _savePostcode(trimmed);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Postcode saved: $trimmed')),
+      );
+      // Trigger rebuild of temperature graph by updating state
+      setState(() {});
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid UK postcode.')),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _postcodeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: Text(title),
-      backgroundColor: Color(0xFFefd98a),
-      elevation: 0,
-      actions: [
-        // ── Navigation button that pushes MyHomePage ──
-        IconButton(
-          icon: const Icon(Icons.arrow_forward),
-          tooltip: 'Go to Counter Page',
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const SecondPage(),
-              ),
-            );
-          },
-        ),
-      ],
-    ),
+        title: Text(widget.title),
+        backgroundColor: const Color(0xff91ca95),
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_forward),
+            tooltip: 'Go to Counter Page',
+            onPressed: () {
+              Navigator.pushNamed(context, '/second');
+            },
+          ),
+        ],
+      ),
       extendBodyBehindAppBar: true,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF86ca97),
-              Color(0xFFefd98a),
-            ],
+            colors: [Color(0xFF86ca97), Color(0xFFefd98a)],
           ),
         ),
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // LOCATION section
-                const Text(
-                  'LOCATION',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // LOCATION section
+              const Text(
+                'Location',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _postcodeController,
+                decoration: InputDecoration(
+                  hintText: 'Enter UK postcode',
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.8),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
                   ),
                 ),
-                const SizedBox(height: 20),
-
+                textInputAction: TextInputAction.done,
+                onSubmitted: _onPostcodeSubmitted,
+              ),
+              if (_savedPostcode != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Saved postcode: $_savedPostcode',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ],
+              const SizedBox(height: 20),
                 // YESTERDAY and TODAY in a row
                 Row(
                   children: [
@@ -112,7 +188,7 @@ class WeatherHomePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'YESTERDAY',
+                            'Yesterday',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -180,21 +256,32 @@ class WeatherHomePage extends StatelessWidget {
 
                 // TEMPERATURE GRAPH and WEATHER ICONS section
                 const Text(
-                  'TEMPERATURE GRAPH',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                'TEMPERATURE GRAPH',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: const Color(0x55909090),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  color: const Color(0x55909090),
+                  borderRadius: BorderRadius.circular(8),
                 ),
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: <Widget>[
+                    Container(
+                      width: 1000,
+                      margin: const EdgeInsets.only(top: 30, right: 20),
+                      child: TempGraph(_currentPostcode),
+                    ),
+                  ],
+                ),
+              ),
+
                 const SizedBox(height: 15),
                 const Text(
                   'WEATHER ICONS',
@@ -286,8 +373,7 @@ class WeatherHomePage extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
@@ -296,7 +382,8 @@ class WeatherHomePage extends StatelessWidget {
 
 class SecondPage extends StatefulWidget {
   const SecondPage({Key? key}) : super(key: key);
-  final String title = 'Second Page';
+  final String title = 'Future Overview';
+
   @override
   _SecondPageState createState() => _SecondPageState();
 }
@@ -346,16 +433,34 @@ Widget build(BuildContext context) {
         final API locData = snapshot.data!;
         final data = locData.getFutureData();
         final day1 = data["1"];
+        final day2 = data["2"];
+
+        final Map<String, IconData> weatherIconMap = {
+          'Clear': WeatherIcons.day_sunny,
+          'Partially cloudy': WeatherIcons.day_cloudy,
+          'Overcast': WeatherIcons.cloudy,
+          'Rain': WeatherIcons.rain,
+          'Snow': WeatherIcons.snow,
+          'Thunderstorm': WeatherIcons.thunderstorm,
+        };
 
         final String lowTemp = day1?["lowTemperature"].toString() ?? 'N/A';
         final String highTemp = day1?["highTemperature"].toString() ?? 'N/A';
         final String precip = day1?["rainfall"].toString() ?? '...';
         final String conditions = day1?["conditions"].toString() ?? '';
 
+        final defaultWeather = WeatherIcons.day_sunny;
+
+
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: Text(widget.title),
+            //backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            title: Text(widget.title, style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,),),
+              backgroundColor: Color(0xff91ca95),
+
           ),
           body: Stack(
             children: [
@@ -367,103 +472,127 @@ Widget build(BuildContext context) {
                 crossAxisCount: 1,
                 childAspectRatio: 7,
                 children: <Widget>[
-                  // Weather Card
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    height: MediaQuery.of(context).size.height * 0.2,
-                    decoration: BoxDecoration(
-                      color: Colors.teal[100],
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
+
+          Container(
+          padding: const EdgeInsets.all(16),
+          height: MediaQuery.of(context).size.height * 0.2,
+          decoration: BoxDecoration(
+            color: const Color(0xff91ca95),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(width: 8),
+                        Flexible( //changed
+                          child: Text(
+                            'Monday',
+                            overflow: TextOverflow.ellipsis, //changed
+                          ),
                         ),
                       ],
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Day Label
-                        const Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(width: 8),
-                                  Text('Monday'),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Temperature
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(width: 8),
-                                  Text("L: $lowTemp° H: $highTemp°"),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Precip Icon
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: const [
-                                  Icon(Icons.water_drop, color: Colors.blueAccent),
-                                  SizedBox(width: 8),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Conditions Icon & Rainfall
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const SizedBox(width: 8),
-                                  const DynamicWeatherIcon(icon: WeatherIcons.rain_wind, size: 25),
-                                  Text('$precip mm'),
-                                ],
-                              ),
-                            ],
+                        SizedBox(width: 8), //changed
+                        Flexible( //changed
+                          child: Text(
+                            "L: $lowTemp° H: $highTemp°",
+                            overflow: TextOverflow.ellipsis, //changed
                           ),
                         ),
                       ],
+                    ),
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        const Icon(Icons.water_drop, color: Color(0xff8ae0ef)),
+                        const SizedBox(width: 4), //changed
+                        Flexible( //changed
+                          child: Text(
+                            '$precip mm',
+                            overflow: TextOverflow.ellipsis, //changed
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: SizedBox(
+                            width: 30, // max width you allow
+                            height: 30,
+                            child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: DynamicWeatherIcon(
+                                icon: weatherIconMap['$conditions'] ?? WeatherIcons.day_sunny,
+                                size: 25,
+                      ),
                     ),
                   ),
+                ),
 
-                  // Other Day Cards
-                  for (var day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+      // Other Day Cards
+                  /*for (var day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
                     Container(
                       padding: const EdgeInsets.all(8),
                       color: Colors.teal[100 + 100 * (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].indexOf(day))],
                       child: Text(day, style: const TextStyle(fontSize: 18)),
-                    ),
+                    ),*/
                 ],
               ),
               Positioned(

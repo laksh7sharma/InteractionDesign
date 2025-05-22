@@ -85,7 +85,7 @@ Map<String, dynamic> getTodayOverallInfo() {
 }
 
 /// Returns a JSON structure with keys from 0 to 23 representing each hour of the day.
-/// Each value is a nested map with keys: "temperature", "rainfall", and "conditions".
+/// Each value is a nested map with keys: "hour" in format of a string 'hh:mm:ss', "temperature" in fahrenheit, "rainfall", and "conditions".
 Map<int, Map<String, dynamic>> getHourlyData() {
   final now = DateTime.now();
   final currentHour = now.hour;  
