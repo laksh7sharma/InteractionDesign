@@ -71,6 +71,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
   void initState() {
     super.initState();
     _loadSavedPostcode().then((_){
+      _checkAlerts();
     if (_savedPostcode != null) {
         setState(() {
           _currentPostcode = _savedPostcode!;
@@ -103,12 +104,40 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
       );
       // Trigger rebuild of temperature graph by updating state
       setState(() {});
+      _checkAlerts();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Invalid UK postcode.')),
       );
     }
   }
+  Future<void> _checkAlerts() async {
+    try {
+      final api = await API.create(_currentPostcode);
+      final info = api.getTodayOverallInfo();
+      if (info['frostPresent'] == true) {
+        AlertUtils.showPopup(
+          title: 'Frost Alert',
+          message: 'Temperatures have dropped below freezing!',
+        );
+      }
+      if (info['extremeWindsPresent'] == true) {
+        AlertUtils.showPopup(
+          title: 'Wind Alert',
+          message: 'Extreme wind speeds detected (>30 mph)!',
+        );
+      }
+      if (info['lowTemperature'] < 100){
+        AlertUtils.showPopup(
+          title: 'Low Temperature Alert',
+          message: 'Low temperature detected (${info['lowTemperature']}°C)!',
+        );
+      }
+    } catch (e) {
+      debugPrint('Error checking alerts: $e');
+    }
+  }
+
 
   @override
   void dispose() {
@@ -342,30 +371,46 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
             // keep the space reserved even when no alerts
             return SizedBox(height: 60);
           }
+          
           return Container(
-            height: 60,
-            color: Colors.red,              // solid red
-            child: PageView.builder(         // swipe if >1 alert
-              itemCount: alerts.length,
-              itemBuilder: (ctx, i) {
-                final a = alerts[i];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Center(
-                    child: Text(
-                      '${a.title}: ${a.message}',
-                      style: const TextStyle(
-                        color: Colors.white,     // white text
-                        fontSize: 14,            // smaller font
-                        fontWeight: FontWeight.w500,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
+                    height: 60,
+                    color: Colors.red,
+                    child: PageView.builder(
+                      itemCount: alerts.length,
+                      itemBuilder: (ctx, i) {
+                        final a = alerts[i];
+                        return Dismissible(
+                          key: ValueKey(a),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            color: Colors.green,
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 20),
+                            child: const Icon(Icons.check, color: Colors.white),
+                          ),
+                          onDismissed: (_) {
+                            final current = List<AlertData>.from(alertsNotifier.value);
+                            current.removeAt(i);
+                            alertsNotifier.value = current;
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Center(
+                              child: Text(
+                                '${a.title}: ${a.message}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                );
-              },
-            ),
           );
         },
       ),
@@ -451,6 +496,7 @@ Widget build(BuildContext context) {
 
         final defaultWeather = WeatherIcons.day_sunny;
 
+        
 
         return Scaffold(
           appBar: AppBar(
