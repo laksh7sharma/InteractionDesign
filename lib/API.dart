@@ -87,27 +87,41 @@ Map<String, dynamic> getTodayOverallInfo() {
 /// Returns a JSON structure with keys from 0 to 23 representing each hour of the day.
 /// Each value is a nested map with keys: "temperature", "rainfall", and "conditions".
 Map<int, Map<String, dynamic>> getHourlyData() {
+  final now = DateTime.now();
+  final currentHour = now.hour;  
+  final days = _data['days'] as List<dynamic>;
+  final todayHours = days[0]['hours'] as List<dynamic>;
+  final tomorrowHours = days.length > 1 
+      ? days[1]['hours'] as List<dynamic> 
+      : <dynamic>[];
 
-  // if (_data == null) {
-  //   await _fetchData(); // Fetch data if not yet initialized
-  // }
-
-
-  List<dynamic> hours = _data['days'][0]['hours'];
-
-  Map<int, Map<String, dynamic>> result = {};
-
-  for (int i = 0; i < hours.length; i++) {
-    var hourData = hours[i];
-    result[i] = {
+  final result = <int, Map<String, dynamic>>{};
+  
+  // 1) Fill from currentHour → 23
+  for (int h = currentHour; h < todayHours.length; h++) {
+    final hourData = todayHours[h];
+    result[h] = {
       "temperature": hourData["temp"],
       "rainfall": hourData["precip"],
-      "conditions": hourData["conditions"]
+      "conditions": hourData["conditions"],
     };
+    if (result.length == 24) return result;
   }
-
+  
+  // 2) Then 0 → currentHour-1 on the next day
+  for (int h = 0; h < tomorrowHours.length; h++) {
+    final hourData = tomorrowHours[h];
+    result[h] = {
+      "temperature": hourData["temp"],
+      "rainfall": hourData["precip"],
+      "conditions": hourData["conditions"],
+    };
+    if (result.length == 24) break;
+  }
+  
   return result;
 }
+
 
 
 /// Returns a JSON structure with keys "1" to "7" and values representing daily forecasts.
