@@ -388,7 +388,7 @@ class SecondPage extends StatefulWidget {
   _SecondPageState createState() => _SecondPageState();
 }
 
-class _SecondPageState extends State<SecondPage>  {
+class _SecondPageState extends State<SecondPage> {
 
   late Future<API> _locDataFuture;
 
@@ -398,6 +398,16 @@ class _SecondPageState extends State<SecondPage>  {
   String precip = '';
   bool loading = true;
 
+  List<String> daysOfWeek = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -406,220 +416,386 @@ class _SecondPageState extends State<SecondPage>  {
 
 
   Future<void> loadWeatherData(API locData, int i) async {
-  Map<String, Map<String, dynamic>> data = await locData.getFutureData();
-  final day = data[i.toString()];
-  setState(() {
-    lowTemp = day?["lowTemperature"].toString() ?? 'N/A';
-    print(lowTemp);
-    highTemp = day?["highTemperature"].toString() ?? 'N/A';
-    conditions = day?["conditions"].toString() ?? 'N/A';
-    precip = day?["rainfall"].toString() ?? 'N/A';
-    loading = false;
-  });
-}
+    Map<String, Map<String, dynamic>> data = await locData.getFutureData();
+    final day = data[i.toString()];
+    setState(() {
+      lowTemp = day?["lowTemperature"].toString() ?? 'N/A';
+      highTemp = day?["highTemperature"].toString() ?? 'N/A';
+      conditions = day?["conditions"].toString() ?? 'N/A';
+      precip = day?["rainfall"].toString() ?? 'N/A';
+      loading = false;
+    });
+  }
 
 
-
-@override
-Widget build(BuildContext context) {
-  return FutureBuilder<API>(
-    future: _locDataFuture,
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError) {
-        return Center(child: Text('Error: ${snapshot.error}'));
-      } else {
-        final API locData = snapshot.data!;
-        final data = locData.getFutureData();
-        final day1 = data["1"];
-        final day2 = data["2"];
-
-        final Map<String, IconData> weatherIconMap = {
-          'Clear': WeatherIcons.day_sunny,
-          'Partially cloudy': WeatherIcons.day_cloudy,
-          'Overcast': WeatherIcons.cloudy,
-          'Rain': WeatherIcons.rain,
-          'Snow': WeatherIcons.snow,
-          'Thunderstorm': WeatherIcons.thunderstorm,
-        };
-
-        final String lowTemp = day1?["lowTemperature"].toString() ?? 'N/A';
-        final String highTemp = day1?["highTemperature"].toString() ?? 'N/A';
-        final String precip = day1?["rainfall"].toString() ?? '...';
-        final String conditions = day1?["conditions"].toString() ?? '';
-
-        final defaultWeather = WeatherIcons.day_sunny;
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<API>(
+      future: _locDataFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          final API locData = snapshot.data!;
+          final data = locData.getFutureData();
+          final day1 = data["1"];
 
 
-        return Scaffold(
-          appBar: AppBar(
-            //backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: Text(widget.title, style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,),),
+          var day_data = [
+            data["1"],
+            data["2"],
+            data["3"],
+            data["4"],
+            data["5"],
+            data["6"],
+            data["7"]
+          ];
+          final day2 = data["2"];
+          final day3 = data["3"];
+          final day4 = data["4"];
+          final day5 = data["5"];
+          final day6 = data["6"];
+          final day7 = data["7"];
+
+          final Map<String, IconData> weatherIconMap = {
+            'Clear': WeatherIcons.day_sunny,
+            'Partially cloudy': WeatherIcons.day_cloudy,
+            'Overcast': WeatherIcons.cloudy,
+            'Rain': WeatherIcons.rain,
+            'Snow': WeatherIcons.snow,
+            'Thunderstorm': WeatherIcons.thunderstorm,
+          };
+
+          final String lowTemp = day1?["lowTemperature"].toString() ?? 'N/A';
+          final String highTemp = day1?["highTemperature"].toString() ?? 'N/A';
+          final String precip = day1?["rainfall"].toString() ?? '...';
+          final String conditions = day1?["conditions"].toString() ?? '';
+          final defaultWeather = WeatherIcons.day_sunny;
+
+
+          Map<String, String> lowTempData = {};
+          Map<String, String> highTempData = {};
+          Map<String, String> precipData = {};
+          Map<String, String> conditionsData = {};
+
+          /*for (var day in day_data) {
+            lowTempData['Monday']= day?["lowTemperature"].toString() ?? 'N/A';
+            highTempData.add(day?["highTemperature"].toString() ?? 'N/A');
+            precipData.add(day?["rainfall"].toString() ?? '...');
+            conditionsData.add(day?["conditions"].toString() ?? '');
+          }*/
+
+          lowTempData['Thursday']= day2?["lowTemperature"].toString() ?? 'N/A';
+          highTempData['Thursday']=day2?["highTemperature"].toString() ?? 'N/A';
+          precipData['Thursday']= day2?["rainfall"].toString() ?? '...';
+          conditionsData['Thursday'] = day2?["conditions"].toString() ?? '';
+
+          lowTempData['Friday']= day3?["lowTemperature"].toString() ?? 'N/A';
+          highTempData['Friday']=day3?["highTemperature"].toString() ?? 'N/A';
+          precipData['Friday']= day3?["rainfall"].toString() ?? '...';
+          conditionsData['Friday'] = day3?["conditions"].toString() ?? '';
+
+          lowTempData['Saturday']= day4?["lowTemperature"].toString() ?? 'N/A';
+          highTempData['Saturday']=day4?["highTemperature"].toString() ?? 'N/A';
+          precipData['Saturday']= day4?["rainfall"].toString() ?? '...';
+          conditionsData['Saturday'] = day4?["conditions"].toString() ?? '';
+
+
+          lowTempData['Sunday']= day5?["lowTemperature"].toString() ?? 'N/A';
+          highTempData['Sunday']=day5?["highTemperature"].toString() ?? 'N/A';
+          precipData['Sunday']= day5?["rainfall"].toString() ?? '...';
+          conditionsData['Sunday'] = day5?["conditions"].toString() ?? '';
+
+          lowTempData['Monday']= day6?["lowTemperature"].toString() ?? 'N/A';
+          highTempData['Monday']=day6?["highTemperature"].toString() ?? 'N/A';
+          precipData['Monday']= day6?["rainfall"].toString() ?? '...';
+          conditionsData['Monday'] = day6?["conditions"].toString() ?? '';
+
+          lowTempData['Tuesday']= day6?["lowTemperature"].toString() ?? 'N/A';
+          highTempData['Tuesday']=day6?["highTemperature"].toString() ?? 'N/A';
+          precipData['Tuesday']= day6?["rainfall"].toString() ?? '...';
+          conditionsData['Tuesday'] = day6?["conditions"].toString() ?? '';
+
+
+          return Scaffold(
+            appBar: AppBar(
+              //backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              title: Text(widget.title, style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,),),
               backgroundColor: Color(0xff91ca95),
 
-          ),
-          body: Stack(
-            children: [
-              GridView.count(
-                primary: false,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                crossAxisCount: 1,
-                childAspectRatio: 7,
-                children: <Widget>[
+            ),
+            body: Stack(
+              children: [
+                GridView.count(
+                  primary: false,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 16),
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  crossAxisCount: 1,
+                  childAspectRatio: 7,
+                  children: <Widget>[
 
-          Container(
-          padding: const EdgeInsets.all(16),
-          height: MediaQuery.of(context).size.height * 0.2,
-          decoration: BoxDecoration(
-            color: const Color(0xff91ca95),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 6,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(width: 8),
-                        Flexible( //changed
-                          child: Text(
-                            'Monday',
-                            overflow: TextOverflow.ellipsis, //changed
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      height: MediaQuery
+                          .of(context)
+                          .size
+                          .height * 0.2,
+                      decoration: BoxDecoration(
+                        color: const Color(0xff91ca95),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(width: 8), //changed
-                        Flexible( //changed
-                          child: Text(
-                            "L: $lowTemp° H: $highTemp°",
-                            overflow: TextOverflow.ellipsis, //changed
+                        ],
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(width: 4),
+                                    Flexible( //changed
+                                      child: Text(
+                                        'Wednesday',
+                                        overflow: TextOverflow
+                                            .ellipsis, //changed
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
 
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        const Icon(Icons.water_drop, color: Color(0xff8ae0ef)),
-                        const SizedBox(width: 4), //changed
-                        Flexible( //changed
-                          child: Text(
-                            '$precip mm',
-                            overflow: TextOverflow.ellipsis, //changed
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(width: 1), //changed
+                                    Flexible( //changed
+                                      child: Text(
+                                        "L: $lowTemp° H: $highTemp°",
+                                        overflow: TextOverflow
+                                            .ellipsis, //changed
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
 
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(width: 10),
-                        Flexible(
-                          child: SizedBox(
-                            width: 30, // max width you allow
-                            height: 30,
-                            child: FittedBox(
-                              fit: BoxFit.contain,
-                              child: DynamicWeatherIcon(
-                                icon: weatherIconMap['$conditions'] ?? WeatherIcons.day_sunny,
-                                size: 25,
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.water_drop,
+                                        color: Color(0xff8ae0ef)),
+                                    const SizedBox(width: 2), //changed
+                                    Flexible( //changed
+                                      child: Text(
+                                        '$precip mm',
+                                        overflow: TextOverflow
+                                            .ellipsis, //changed
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const SizedBox(width: 10),
+                                    Flexible(
+                                      child: SizedBox(
+                                        width: 30, // max width you allow
+                                        height: 30,
+                                        child: FittedBox(
+                                          fit: BoxFit.contain,
+                                          child: DynamicWeatherIcon(
+                                            icon: weatherIconMap['$conditions'] ??
+                                                WeatherIcons.day_sunny,
+                                            size: 25,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ),
-
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-
-      // Other Day Cards
-                  /*for (var day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+                    for (var day in ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday'])
                     Container(
-                      padding: const EdgeInsets.all(8),
-                      color: Colors.teal[100 + 100 * (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].indexOf(day))],
-                      child: Text(day, style: const TextStyle(fontSize: 18)),
-                    ),*/
-                ],
-              ),
-              Positioned(
-                bottom: 20,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: ElevatedButton(
-                    child: const Text("Go back"),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                          padding: const EdgeInsets.all(16),
+                          height: MediaQuery.of(context).size.height * 0.2,
+                          decoration: BoxDecoration(
+                          color: const Color(0xff91ca95),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                          BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                          ),
+                          ],
+                          ),
+                          child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                          Expanded(
+                          child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                          Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                          const SizedBox(width: 4),
+                          Flexible(
+                          child: Text(
+                          day,
+                          overflow: TextOverflow.ellipsis,
+                          ),
+                          ),
+                          ],
+                          ),
+                          ],
+                          ),
+                          ),
+                          Expanded(
+                          child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                          Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                          SizedBox(width: 1),
+                          Flexible(
+                          child:Text("L: ${lowTempData[day]}° H: ${highTempData[day]}°",
+                          overflow: TextOverflow.ellipsis,
+                          ),
+                          ),
+                          ],
+                          ),
+                          ],
+                          ),
+                          ),
+                          Expanded(
+                          child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                          Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                          const Icon(Icons.water_drop, color: Color(0xff8ae0ef)),
+                          const SizedBox(width: 2),
+                          Flexible(
+                          child: Text(
+                          '${precipData[day]} mm',
+                          overflow: TextOverflow.ellipsis,
+                          ),
+                          ),
+                          ],
+                          ),
+                          ],
+                          ),
+                          ),
+                          Expanded(
+                          child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                          Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                          const SizedBox(width: 10),
+                          Flexible(
+                          child: SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: FittedBox(
+                          fit: BoxFit.contain,
+                          child: DynamicWeatherIcon(
+                          icon: weatherIconMap['${conditionsData[day]}'] ?? WeatherIcons.day_sunny,
+                          size: 25,
+                          ),
+                          ),
+                          ),
+                          ),
+                          ],
+                          ),
+                          ],
+                          ),
+                          ),
+                          ],
+                          ),
+                    ),
+
+                              ],
+                ),
+
+                Positioned(
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: ElevatedButton(
+                      child: const Text("Go back"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      }
-    },
-  );
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
 }
 
-
-}
-
-class InfoBox extends StatefulWidget {
+  class InfoBox extends StatefulWidget {
   final String initialData;
 
   InfoBox({required this.initialData});
