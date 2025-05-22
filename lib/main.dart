@@ -536,8 +536,6 @@ class _SecondPageState extends State<SecondPage> {
           final String conditions = day1?["conditions"].toString() ?? '';
           final defaultWeather = WeatherIcons.day_sunny;
 
-
-
           Map<String, String> lowTempData = {};
           Map<String, String> highTempData = {};
           Map<String, String> precipData = {};
@@ -550,33 +548,33 @@ class _SecondPageState extends State<SecondPage> {
             conditionsData.add(day?["conditions"].toString() ?? '');
           }*/
 
-          lowTempData['Thursday']= (((day2?["lowTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString() ?? 'N/A';
-          highTempData['Thursday']= (((day2?["highTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString() ?? 'N/A';;
+          lowTempData['Thursday']= (((day2?["lowTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString();
+          highTempData['Thursday']= (((day2?["highTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString();
           precipData['Thursday']= day2?["rainfall"].toString() ?? '...';
           conditionsData['Thursday'] = day2?["conditions"].toString() ?? '';
 
-          lowTempData['Friday']= (((day3?["lowTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString() ?? 'N/A';
-          highTempData['Friday']= (((day3?["highTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString() ?? 'N/A';;
+          lowTempData['Friday']= (((day3?["lowTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString();
+          highTempData['Friday']= (((day3?["highTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString();
           precipData['Friday']= day3?["rainfall"].toString() ?? '...';
           conditionsData['Friday'] = day3?["conditions"].toString() ?? '';
 
-          lowTempData['Saturday']= (((day4?["lowTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString() ?? 'N/A';
-          highTempData['Saturday']= (((day4?["highTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString() ?? 'N/A';;
+          lowTempData['Saturday']= (((day4?["lowTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString();
+          highTempData['Saturday']= (((day4?["highTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString();
           precipData['Saturday']= day4?["rainfall"].toString() ?? '...';
           conditionsData['Saturday'] = day4?["conditions"].toString() ?? '';
 
-          lowTempData['Sunday']= (((day5?["lowTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString() ?? 'N/A';
-          highTempData['Sunday']= (((day5?["highTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString() ?? 'N/A';;
+          lowTempData['Sunday']= (((day5?["lowTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString();
+          highTempData['Sunday']= (((day5?["highTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString();
           precipData['Sunday']= day5?["rainfall"].toString() ?? '...';
           conditionsData['Sunday'] = day5?["conditions"].toString() ?? '';
 
-          lowTempData['Monday']= (((day6?["lowTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString() ?? 'N/A';
-          highTempData['Monday']= (((day6?["highTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString() ?? 'N/A';;
+          lowTempData['Monday']= (((day6?["lowTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString();
+          highTempData['Monday']= (((day6?["highTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString();
           precipData['Monday']= day6?["rainfall"].toString() ?? '...';
           conditionsData['Monday'] = day6?["conditions"].toString() ?? '';
 
-          lowTempData['Tuesday']= (((day7?["lowTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString() ?? 'N/A';
-          highTempData['Tuesday']= (((day7?["highTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString() ?? 'N/A';;
+          lowTempData['Tuesday']= (((day7?["lowTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString();
+          highTempData['Tuesday']= (((day7?["highTemperature"]).toDouble() - 32) * (5 / 9)).truncate().toString();
           precipData['Tuesday']= day7?["rainfall"].toString() ?? '...';
           conditionsData['Tuesday'] = day7?["conditions"].toString() ?? '';
 
@@ -585,9 +583,9 @@ class _SecondPageState extends State<SecondPage> {
             appBar: AppBar(
               //backgroundColor: Theme.of(context).colorScheme.inversePrimary,
               title: Text(widget.title, style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,),),
+                fontSize: 22,
+                //fontWeight: FontWeight.bold,
+                color: Colors.black,),),
               backgroundColor: Color(0xff91ca95),
 
             ),
@@ -610,7 +608,7 @@ class _SecondPageState extends State<SecondPage> {
                           .size
                           .height * 0.2,
                       decoration: BoxDecoration(
-                        color: const Color(0xff91ca95),
+                        color: const Color(0xffb4cf90),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -728,7 +726,7 @@ class _SecondPageState extends State<SecondPage> {
                           padding: const EdgeInsets.all(16),
                           height: MediaQuery.of(context).size.height * 0.2,
                           decoration: BoxDecoration(
-                          color: const Color(0xff91ca95),
+                          color: const Color(0xffb4cf90),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                           BoxShadow(
