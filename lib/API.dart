@@ -111,11 +111,16 @@ Map<int, Map<String, dynamic>> getHourlyData() {
   // 2) Then 0 → currentHour-1 on the next day
   for (int h = 0; h < tomorrowHours.length; h++) {
     final hourData = tomorrowHours[h];
+    
+    final formattedHour = h.toString().padLeft(2, '0') + ':00';
+
     result[h] = {
       "temperature": hourData["temp"],
       "rainfall": hourData["precip"],
       "conditions": hourData["conditions"],
+      "hours": formattedHour,
     };
+
     if (result.length == 24) break;
   }
   
