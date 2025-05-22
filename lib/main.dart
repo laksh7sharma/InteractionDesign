@@ -154,7 +154,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.arrow_forward),
-            tooltip: 'Go to Counter Page',
+            tooltip: 'See Future Overview',
             onPressed: () {
               Navigator.pushNamed(context, '/second');
             },
@@ -658,6 +658,7 @@ class _SecondPageState extends State<SecondPage> {
                                     Flexible( //changed
                                       child: Text(
                                         "L: $lowTemp° H: $highTemp°",
+                                        //((entry.value['temperature'] as num).toDouble() - 32) * (5 / 9);
                                         overflow: TextOverflow
                                             .ellipsis, //changed
                                       ),
