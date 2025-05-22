@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:interaction_design/temp_graph.dart';
@@ -376,9 +375,6 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
       );
   }
 }
-
-
-
 
 class SecondPage extends StatefulWidget {
   const SecondPage({Key? key}) : super(key: key);
