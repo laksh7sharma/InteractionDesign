@@ -292,22 +292,43 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                 ),
               ),
               const SizedBox(height: 8),
-              Container(
-                height: 150,
-                decoration: BoxDecoration(
-                  color: const Color(0x55909090),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: <Widget>[
-                    Container(
-                      width: 1000,
-                      margin: const EdgeInsets.only(top: 30, right: 20),
-                      child: TempGraph(_currentPostcode),
+              Stack(
+                children: [
+                  Container(
+                    height: 200,
+                    padding: EdgeInsets.only(top: 20, bottom: 10, left:5),
+                    decoration: BoxDecoration(
+                      color: const Color(0x55909090),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
-                ),
+                    child: TempGraph(_currentPostcode),
+                  ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child:Container(height: 200,
+                    decoration: BoxDecoration(
+                      color: const Color(0x55909090),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Align(
+                    alignment: Alignment.centerRight,
+                    child: IgnorePointer(
+                      child: Container(
+                        width: 40,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerRight,
+                            end: Alignment.centerLeft,
+                            colors: [
+                              Colors.black.withOpacity(0.2),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),))
+                ],
               ),
 
                 const SizedBox(height: 15),
