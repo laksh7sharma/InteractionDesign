@@ -1,11 +1,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:interaction_design/TempGraph.dart';
+import 'package:interaction_design/temp_graph.dart';
 import 'API.dart';
 import 'alerts.dart';
 import 'package:weather_icons/weather_icons.dart';
-import 'TempGraph.dart';
+import 'temp_graph.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -435,10 +435,22 @@ Widget build(BuildContext context) {
         final day1 = data["1"];
         final day2 = data["2"];
 
+        final Map<String, IconData> weatherIconMap = {
+          'Clear': WeatherIcons.day_sunny,
+          'Partially cloudy': WeatherIcons.day_cloudy,
+          'Overcast': WeatherIcons.cloudy,
+          'Rain': WeatherIcons.rain,
+          'Snow': WeatherIcons.snow,
+          'Thunderstorm': WeatherIcons.thunderstorm,
+        };
+
         final String lowTemp = day1?["lowTemperature"].toString() ?? 'N/A';
         final String highTemp = day1?["highTemperature"].toString() ?? 'N/A';
         final String precip = day1?["rainfall"].toString() ?? '...';
         final String conditions = day1?["conditions"].toString() ?? '';
+
+        final defaultWeather = WeatherIcons.day_sunny;
+
 
         return Scaffold(
           appBar: AppBar(
@@ -460,99 +472,121 @@ Widget build(BuildContext context) {
                 crossAxisCount: 1,
                 childAspectRatio: 7,
                 children: <Widget>[
-                  // Weather Card
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    height: MediaQuery.of(context).size.height * 0.2,
-                    decoration: BoxDecoration(
-                      color: Color(0xff91ca95),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
+
+          Container(
+          padding: const EdgeInsets.all(16),
+          height: MediaQuery.of(context).size.height * 0.2,
+          decoration: BoxDecoration(
+            color: const Color(0xff91ca95),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(width: 8),
+                        Flexible( //changed
+                          child: Text(
+                            'Monday',
+                            overflow: TextOverflow.ellipsis, //changed
+                          ),
                         ),
                       ],
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Day Label
-                        const Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(width: 8),
-                                  Text('Monday'),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Temperature
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(width: 8),
-                                  Text("L: $lowTemp° H: $highTemp°"),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Precip Icon
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Icon(Icons.water_drop, color: Color(
-                                      0xff8ae0ef), ),
-                                  Text('$precip mm'),
-                                  SizedBox(width: 8),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Conditions Icon & Rainfall
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const SizedBox(width: 10),
-                                  const DynamicWeatherIcon(icon: WeatherIcons.rain_wind, size: 25),
-                                  Text('$conditions'),
-                                ],
-                              ),
-                            ],
+                        SizedBox(width: 8), //changed
+                        Flexible( //changed
+                          child: Text(
+                            "L: $lowTemp° H: $highTemp°",
+                            overflow: TextOverflow.ellipsis, //changed
                           ),
                         ),
                       ],
+                    ),
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        const Icon(Icons.water_drop, color: Color(0xff8ae0ef)),
+                        const SizedBox(width: 4), //changed
+                        Flexible( //changed
+                          child: Text(
+                            '$precip mm',
+                            overflow: TextOverflow.ellipsis, //changed
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: SizedBox(
+                            width: 30, // max width you allow
+                            height: 30,
+                            child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: DynamicWeatherIcon(
+                                icon: weatherIconMap['$conditions'] ?? WeatherIcons.day_sunny,
+                                size: 25,
+                      ),
                     ),
                   ),
+                ),
 
-                  // Other Day Cards
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+      // Other Day Cards
                   /*for (var day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
                     Container(
                       padding: const EdgeInsets.all(8),
