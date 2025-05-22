@@ -405,9 +405,9 @@ class _SecondPageState extends State<SecondPage>  {
   }
 
 
-  Future<void> loadWeatherData(API locData, int i) async {
+  Future<void> loadWeatherData(API locData, int arthur) async {
   Map<String, Map<String, dynamic>> data = await locData.getFutureData();
-  final day = data[i.toString()];
+  final day = data[arthur.toString()];
   setState(() {
     lowTemp = day?["lowTemperature"].toString() ?? 'N/A';
     print(lowTemp);
