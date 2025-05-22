@@ -216,7 +216,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Yesterday',
+                            'YESTERDAY',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -630,11 +630,11 @@ class _SecondPageState extends State<SecondPage> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     SizedBox(width: 4),
-                                    Flexible( //changed
+                                    Flexible(
                                       child: Text(
                                         'Wednesday',
                                         overflow: TextOverflow
-                                            .ellipsis, //changed
+                                            .ellipsis,
                                       ),
                                     ),
                                   ],
@@ -651,12 +651,12 @@ class _SecondPageState extends State<SecondPage> {
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    SizedBox(width: 1), //changed
-                                    Flexible( //changed
+                                    SizedBox(width: 1),
+                                    Flexible(
                                       child: Text(
                                         "L: $lowTemp° H: $highTemp°",
                                         overflow: TextOverflow
-                                            .ellipsis, //changed
+                                            .ellipsis,
                                       ),
                                     ),
                                   ],
@@ -675,12 +675,12 @@ class _SecondPageState extends State<SecondPage> {
                                   children: [
                                     const Icon(Icons.water_drop,
                                         color: Color(0xff8ae0ef)),
-                                    const SizedBox(width: 2), //changed
-                                    Flexible( //changed
+                                    const SizedBox(width: 2),
+                                    Flexible(
                                       child: Text(
                                         '$precip mm',
                                         overflow: TextOverflow
-                                            .ellipsis, //changed
+                                            .ellipsis,
                                       ),
                                     ),
                                   ],
@@ -700,7 +700,7 @@ class _SecondPageState extends State<SecondPage> {
                                     const SizedBox(width: 10),
                                     Flexible(
                                       child: SizedBox(
-                                        width: 30, // max width you allow
+                                        width: 30,
                                         height: 30,
                                         child: FittedBox(
                                           fit: BoxFit.contain,
