@@ -36,7 +36,7 @@ class TempGraph extends StatelessWidget {
 
         // API is valid, so retrieve data about the coming day.
         final hourlyData =
-        api.getHourlyData(); // type: Map<int, Map<String,dynamic>>?
+            api.getHourlyData(); // type: Map<int, Map<String,dynamic>>?
 
         if (hourlyData == null || hourlyData.isEmpty) {
           // Either there was literally no hourly data, or getHourlyData() chose to return null.
@@ -56,6 +56,11 @@ class TempGraph extends StatelessWidget {
           if (temp > maxTemp) maxTemp = temp;
         }
 
+        final bottomLineVal = minTemp.floorToDouble();
+        final topLineVal = maxTemp.ceilToDouble();
+
+        final lightGrey = Color.fromARGB(255, 175, 175, 175);
+
         // Build chart
         return Row(
           children: [
@@ -65,8 +70,8 @@ class TempGraph extends StatelessWidget {
               child: LineChart(
                 LineChartData(
                   minX: 0,
-                  minY: (minTemp / 2).floorToDouble() * 2,
-                  maxY: (maxTemp / 2).ceilToDouble() * 2,
+                  minY: bottomLineVal,
+                  maxY: topLineVal,
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
                     rightTitles: AxisTitles(
@@ -78,8 +83,42 @@ class TempGraph extends StatelessWidget {
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        interval: 4,
                         reservedSize: 30,
+                        getTitlesWidget: (value, meta) {
+                          if (value % 5 == 0) {
+                            return SideTitleWidget(
+                              meta: meta,
+                              child: Text(
+                                value.toStringAsFixed(0),
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            );
+                            return const SizedBox.shrink(); // Don't show label
+                          } else if (value == maxTemp.ceilToDouble()) {
+                            return SideTitleWidget(
+                              meta: meta,
+                              child: Text(
+                                value.toStringAsFixed(0),
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 255, 99, 0),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          } else if (value == minTemp.floorToDouble()) {
+                            return SideTitleWidget(
+                              meta: meta,
+                              child: Text(
+                                value.toStringAsFixed(0),
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 0, 143, 186),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink(); // Don't show label
+                        },
                       ),
                     ),
                     bottomTitles: AxisTitles(
@@ -91,11 +130,7 @@ class TempGraph extends StatelessWidget {
                     ),
                   ),
                   lineTouchData: LineTouchData(enabled: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: [],
-                    ),
-                  ],
+                  lineBarsData: [LineChartBarData(spots: [])],
                 ),
               ),
             ),
@@ -113,45 +148,59 @@ class TempGraph extends StatelessWidget {
                             verticalLines: [
                               VerticalLine(
                                 x: 0,
-                                color: Colors.grey,
+                                color: Color.fromARGB(255, 100, 100, 100),
                                 strokeWidth: 1, // optional: dotted line
                               ),
                             ],
                             horizontalLines: [
                               HorizontalLine(
-                                y: (maxTemp / 2).ceilToDouble() * 2,
-                                color: Colors.grey,
+                                y: topLineVal,
+                                color:
+                                    topLineVal % 5 == 0
+                                        ? Color.fromARGB(255, 100, 100, 100)
+                                        : lightGrey,
                                 strokeWidth: 1,
                               ),
                               HorizontalLine(
-                                y: (minTemp / 2).floorToDouble() * 2,
-                                color: Colors.grey,
+                                y: bottomLineVal,
+                                color:
+                                    bottomLineVal % 5 == 0
+                                        ? Color.fromARGB(255, 100, 100, 100)
+                                        : lightGrey,
                                 strokeWidth: 1,
-                              )
-                            ]
+                              ),
+                            ],
                           ),
                           minX: 0,
-                          minY: (minTemp / 2).floorToDouble() * 2,
-                          maxY: (maxTemp / 2).ceilToDouble() * 2,
+                          minY: bottomLineVal,
+                          maxY: topLineVal,
                           borderData: FlBorderData(show: false),
                           gridData: FlGridData(
                             drawVerticalLine: true,
                             getDrawingVerticalLine: (value) {
                               return FlLine(
-                                color: Colors.grey, // Your custom color
+                                color: Color.fromARGB(255, 100, 100, 100),
+                                // Your custom color
                                 strokeWidth:
-                                1, // Dottedness: [dash length, space length]
+                                    1, // Dottedness: [dash length, space length]
                               );
                             },
-                            horizontalInterval: 2,
-                            checkToShowHorizontalLine:
-                                (value) => value % 2 == 0,
+                            horizontalInterval: 1,
                             getDrawingHorizontalLine: (value) {
-                              return FlLine(
-                                color: Colors.grey, // Your custom color
-                                strokeWidth:
-                                1, // Dottedness: [dash length, space length]
-                              );
+                              if (value % 5 == 0) {
+                                return FlLine(
+                                  color: Color.fromARGB(255, 100, 100, 100),
+                                  // Your custom color
+                                  strokeWidth:
+                                      1, // Dottedness: [dash length, space length]
+                                );
+                              } else {
+                                return FlLine(
+                                  color: lightGrey, // Your custom color
+                                  strokeWidth:
+                                      1, // Dottedness: [dash length, space length]
+                                );
+                              }
                             },
                           ),
                           titlesData: FlTitlesData(
@@ -175,7 +224,7 @@ class TempGraph extends StatelessWidget {
                                 reservedSize: 30,
                                 getTitlesWidget: (value, meta) {
                                   final hour =
-                                  hourlyData[value.toInt()]!['hours'];
+                                      hourlyData[value.toInt()]!['hours'];
                                   final label = hour;
                                   return SideTitleWidget(
                                     space: 0,
@@ -188,21 +237,28 @@ class TempGraph extends StatelessWidget {
                                         decoration: BoxDecoration(
                                           border: Border(
                                             left: BorderSide(
-                                              color: Colors.grey,
+                                              color: Color.fromARGB(
+                                                255,
+                                                100,
+                                                100,
+                                                100,
+                                              ),
                                               // or any color
                                               width:
-                                              1, // thickness of the border
+                                                  1, // thickness of the border
                                             ),
                                           ),
                                         ),
                                         alignment: Alignment.centerRight,
                                         child: Container(
-                                          padding: EdgeInsets.only(top:10),
+                                          padding: EdgeInsets.only(top: 10),
                                           child: Text(
                                             textAlign: TextAlign.right,
                                             label,
-                                            style: const TextStyle(fontSize: 15),
-                                        ),
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
