@@ -87,29 +87,47 @@ Map<String, dynamic> getTodayOverallInfo() {
 /// Returns a JSON structure with keys from 0 to 23 representing each hour of the day.
 /// Each value is a nested map with keys: "hour" in format of a string 'hh:mm:ss', "temperature" in fahrenheit, "rainfall", and "conditions".
 Map<int, Map<String, dynamic>> getHourlyData() {
+  final now = DateTime.now();
+  final currentHour = now.hour;  
+  final days = _data['days'] as List<dynamic>;
+  final todayHours = days[0]['hours'] as List<dynamic>;
+  final tomorrowHours = days.length > 1 
+      ? days[1]['hours'] as List<dynamic> 
+      : <dynamic>[];
 
-  // if (_data == null) {
-  //   await _fetchData(); // Fetch data if not yet initialized
-  // }
+  final result = <int, Map<String, dynamic>>{};
+  int offset = 0;
 
+  // 1) From currentHour → 23 today
+  for (int h = currentHour; h < todayHours.length && offset < 24; h++) {
+    final hourData = todayHours[h];
+    final formattedHour = h.toString().padLeft(2, '0') + ':00';
 
-  List<dynamic> hours = _data['days'][0]['hours'];
-
-  Map<int, Map<String, dynamic>> result = {};
-
-  for (int i = 0; i < hours.length; i++) {
-    var hourData = hours[i];
-    result[i] = {
-      "hour": hourData["datetime"],
+    result[offset] = {
       "temperature": hourData["temp"],
-      "rainfall": hourData["precip"],
-      "conditions": hourData["conditions"]
+      "rainfall":    hourData["precip"],
+      "conditions":  hourData["conditions"],
+      "hours":       formattedHour,
     };
+    offset++;
+  }
+
+  // 2) Then 00 → currentHour−1 tomorrow
+  for (int h = 0; h < tomorrowHours.length && offset < 24; h++) {
+    final hourData = tomorrowHours[h];
+    final formattedHour = h.toString().padLeft(2, '0') + ':00';
+
+    result[offset] = {
+      "temperature": hourData["temp"],
+      "rainfall":    hourData["precip"],
+      "conditions":  hourData["conditions"],
+      "hours":       formattedHour,
+    };
+    offset++;
   }
 
   return result;
 }
-
 
 /// Returns a JSON structure with keys "1" to "7" and values representing daily forecasts.
 /// Each structure contains "lowTemperature", "highTemperature", "rainfall", and "conditions".
@@ -131,33 +149,6 @@ Map<String, Map<String, dynamic>> getFutureData() {
 
   return result;
 }
-
-
-// Initializer - postCode is a string of the form "XXX XXX"
-// API(String postCode) {
-//     String formattedPostCode = postCode.replaceAll(' ', '%20');
-//     _url =
-//         "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/$formattedPostCode?unitGroup=us&key=TB7ZNBTHMPNQXYBA5ZW3HXQQ4&contentType=json";
-
-//     _fetchData();
-//   }
-
-// // Asynchronous method to fetch and print the weather data
-// Future<void> _fetchData() async {
-//     try {
-//       final response = await http.get(Uri.parse(_url));
-
-//       if (response.statusCode == 200) {
-//         Map<String, dynamic> _data = jsonDecode(response.body);
-//         print("Weather data for the given postcode:");
-//         // print(jsonEncode(data)); // Pretty raw, you can refine this later
-//       } else {
-//         print("Failed to load data. Status code: ${response.statusCode}");
-//       }
-//     } catch (e) {
-//       print("Error occurred: $e");
-//     }
-//   }
 
 
   // Private constructor

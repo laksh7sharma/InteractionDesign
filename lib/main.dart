@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:interaction_design/temp_graph.dart';
@@ -71,6 +70,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
   void initState() {
     super.initState();
     _loadSavedPostcode().then((_){
+      _checkAlerts();
     if (_savedPostcode != null) {
         setState(() {
           _currentPostcode = _savedPostcode!;
@@ -103,12 +103,40 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
       );
       // Trigger rebuild of temperature graph by updating state
       setState(() {});
+      _checkAlerts();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Invalid UK postcode.')),
       );
     }
   }
+  Future<void> _checkAlerts() async {
+    try {
+      final api = await API.create(_currentPostcode);
+      final info = api.getTodayOverallInfo();
+      if (info['frostPresent'] == true) {
+        AlertUtils.showPopup(
+          title: 'Frost Alert',
+          message: 'Temperatures have dropped below freezing!',
+        );
+      }
+      if (info['extremeWindsPresent'] == true) {
+        AlertUtils.showPopup(
+          title: 'Wind Alert',
+          message: 'Extreme wind speeds detected (>30 mph)!',
+        );
+      }
+      if (info['lowTemperature'] < 100){
+        AlertUtils.showPopup(
+          title: 'Low Temperature Alert',
+          message: 'Low temperature detected (${info['lowTemperature']}°C)!',
+        );
+      }
+    } catch (e) {
+      debugPrint('Error checking alerts: $e');
+    }
+  }
+
 
   @override
   void dispose() {
@@ -264,22 +292,43 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                 ),
               ),
               const SizedBox(height: 8),
-              Container(
-                height: 150,
-                decoration: BoxDecoration(
-                  color: const Color(0x55909090),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: <Widget>[
-                    Container(
-                      width: 1000,
-                      margin: const EdgeInsets.only(top: 30, right: 20),
-                      child: TempGraph(_currentPostcode),
+              Stack(
+                children: [
+                  Container(
+                    height: 200,
+                    padding: EdgeInsets.only(top: 20, bottom: 10, left:5),
+                    decoration: BoxDecoration(
+                      color: const Color(0x55909090),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
-                ),
+                    child: TempGraph(_currentPostcode),
+                  ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child:Container(height: 200,
+                    decoration: BoxDecoration(
+                      color: const Color(0x55909090),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Align(
+                    alignment: Alignment.centerRight,
+                    child: IgnorePointer(
+                      child: Container(
+                        width: 40,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerRight,
+                            end: Alignment.centerLeft,
+                            colors: [
+                              Colors.black.withOpacity(0.2),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),))
+                ],
               ),
 
                 const SizedBox(height: 15),
@@ -342,30 +391,46 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
             // keep the space reserved even when no alerts
             return SizedBox(height: 60);
           }
+
           return Container(
-            height: 60,
-            color: Colors.red,              // solid red
-            child: PageView.builder(         // swipe if >1 alert
-              itemCount: alerts.length,
-              itemBuilder: (ctx, i) {
-                final a = alerts[i];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Center(
-                    child: Text(
-                      '${a.title}: ${a.message}',
-                      style: const TextStyle(
-                        color: Colors.white,     // white text
-                        fontSize: 14,            // smaller font
-                        fontWeight: FontWeight.w500,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
+                    height: 60,
+                    color: Colors.red,
+                    child: PageView.builder(
+                      itemCount: alerts.length,
+                      itemBuilder: (ctx, i) {
+                        final a = alerts[i];
+                        return Dismissible(
+                          key: ValueKey(a),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            color: Colors.green,
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 20),
+                            child: const Icon(Icons.check, color: Colors.white),
+                          ),
+                          onDismissed: (_) {
+                            final current = List<AlertData>.from(alertsNotifier.value);
+                            current.removeAt(i);
+                            alertsNotifier.value = current;
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Center(
+                              child: Text(
+                                '${a.title}: ${a.message}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                );
-              },
-            ),
           );
         },
       ),
@@ -376,9 +441,6 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
       );
   }
 }
-
-
-
 
 class SecondPage extends StatefulWidget {
   const SecondPage({Key? key}) : super(key: key);
@@ -473,6 +535,7 @@ class _SecondPageState extends State<SecondPage> {
           final String precip = day1?["rainfall"].toString() ?? '...';
           final String conditions = day1?["conditions"].toString() ?? '';
           final defaultWeather = WeatherIcons.day_sunny;
+
 
 
           Map<String, String> lowTempData = {};
