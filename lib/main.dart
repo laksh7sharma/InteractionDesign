@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'weather app',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: const WeatherHomePage(title: 'Weather Dashboard'),
@@ -293,17 +294,17 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                     height: 200,
                     padding: EdgeInsets.only(top: 20, bottom: 10, left: 5),
                     decoration: BoxDecoration(
-                      color: const Color(0x55909090),
+                      color: const Color(0x44FFFFFF),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: TempGraph(_currentPostcode),
                   ),
-                  ClipRRect(
+                  IgnorePointer(
+                  child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
                       height: 200,
                       decoration: BoxDecoration(
-                        color: const Color(0x55909090),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Align(
@@ -325,6 +326,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                         ),
                       ),
                     ),
+                  ),
                   ),
                 ],
               ),
