@@ -4,11 +4,10 @@ import 'API.dart';
 import 'dart:math';
 
 class TempGraph extends StatelessWidget {
-  String postcode = "";
+  final String postcode;
+  final ScrollController scrollController;
 
-  TempGraph(String postcode) {
-    this.postcode = postcode;
-  }
+  TempGraph(this.postcode, this.scrollController, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +65,7 @@ class TempGraph extends StatelessWidget {
           children: [
             // y-axis Labels.
             Container(
-              width: 30,
+              width: 40,
               child: LineChart(
                 LineChartData(
                   minX: 0,
@@ -83,7 +82,7 @@ class TempGraph extends StatelessWidget {
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        reservedSize: 30,
+                        reservedSize: 40,
                         getTitlesWidget: (value, meta) {
                           if (value % 5 == 0) {
                             return SideTitleWidget(
@@ -136,144 +135,178 @@ class TempGraph extends StatelessWidget {
             ),
             // Graph, scrollable
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Container(
-                  width: 1000,
-                  child: LineChart(
-                    LineChartData(
-                      extraLinesData: ExtraLinesData(
-                        verticalLines: [
-                          VerticalLine(
-                            x: 0,
-                            color: Color.fromARGB(255, 100, 100, 100),
-                            strokeWidth: 1, // optional: dotted line
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: scrollController,
+                    child: Container(
+                      width: 1000,
+                      child: LineChart(
+                        LineChartData(
+                          extraLinesData: ExtraLinesData(
+                            verticalLines: [
+                              VerticalLine(
+                                x: 0,
+                                color: Color.fromARGB(255, 100, 100, 100),
+                                strokeWidth: 1, // optional: dotted line
+                              ),
+                            ],
+                            horizontalLines: [
+                              HorizontalLine(
+                                y: topLineVal,
+                                color:
+                                    topLineVal % 5 == 0
+                                        ? Color.fromARGB(255, 100, 100, 100)
+                                        : lightGrey,
+                                strokeWidth: 1,
+                              ),
+                              HorizontalLine(
+                                y: bottomLineVal,
+                                color:
+                                    bottomLineVal % 5 == 0
+                                        ? Color.fromARGB(255, 100, 100, 100)
+                                        : lightGrey,
+                                strokeWidth: 1,
+                              ),
+                            ],
                           ),
-                        ],
-                        horizontalLines: [
-                          HorizontalLine(
-                            y: topLineVal,
-                            color:
-                                topLineVal % 5 == 0
-                                    ? Color.fromARGB(255, 100, 100, 100)
-                                    : lightGrey,
-                            strokeWidth: 1,
+                          minX: 0,
+                          minY: bottomLineVal,
+                          maxY: topLineVal,
+                          borderData: FlBorderData(show: false),
+                          gridData: FlGridData(
+                            drawVerticalLine: true,
+                            getDrawingVerticalLine: (value) {
+                              return FlLine(
+                                color: Color.fromARGB(255, 100, 100, 100),
+                                // Your custom color
+                                strokeWidth:
+                                    1, // Dottedness: [dash length, space length]
+                              );
+                            },
+                            horizontalInterval: 1,
+                            getDrawingHorizontalLine: (value) {
+                              if (value % 5 == 0) {
+                                return FlLine(
+                                  color: Color.fromARGB(255, 100, 100, 100),
+                                  // Your custom color
+                                  strokeWidth:
+                                      1, // Dottedness: [dash length, space length]
+                                );
+                              } else {
+                                return FlLine(
+                                  color: lightGrey, // Your custom color
+                                  strokeWidth:
+                                      1, // Dottedness: [dash length, space length]
+                                );
+                              }
+                            },
                           ),
-                          HorizontalLine(
-                            y: bottomLineVal,
-                            color:
-                                bottomLineVal % 5 == 0
-                                    ? Color.fromARGB(255, 100, 100, 100)
-                                    : lightGrey,
-                            strokeWidth: 1,
-                          ),
-                        ],
-                      ),
-                      minX: 0,
-                      minY: bottomLineVal,
-                      maxY: topLineVal,
-                      borderData: FlBorderData(show: false),
-                      gridData: FlGridData(
-                        drawVerticalLine: true,
-                        getDrawingVerticalLine: (value) {
-                          return FlLine(
-                            color: Color.fromARGB(255, 100, 100, 100),
-                            // Your custom color
-                            strokeWidth:
-                                1, // Dottedness: [dash length, space length]
-                          );
-                        },
-                        horizontalInterval: 1,
-                        getDrawingHorizontalLine: (value) {
-                          if (value % 5 == 0) {
-                            return FlLine(
-                              color: Color.fromARGB(255, 100, 100, 100),
-                              // Your custom color
-                              strokeWidth:
-                                  1, // Dottedness: [dash length, space length]
-                            );
-                          } else {
-                            return FlLine(
-                              color: lightGrey, // Your custom color
-                              strokeWidth:
-                                  1, // Dottedness: [dash length, space length]
-                            );
-                          }
-                        },
-                      ),
-                      titlesData: FlTitlesData(
-                        rightTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        topTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: false,
-                            interval: 4,
-                            reservedSize: 30,
-                          ),
-                        ),
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            interval: 2,
-                            reservedSize: 30,
-                            getTitlesWidget: (value, meta) {
-                              final hour = hourlyData[value.toInt()]!['hours'];
-                              final label = hour;
-                              return SideTitleWidget(
-                                space: 0,
-                                meta: meta,
-                                child: Transform.translate(
-                                  offset: Offset(19.5, 0),
-                                  // shift left by label width
-                                  child: Container(
-                                    width: 40,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        left: BorderSide(
-                                          color: Color.fromARGB(
-                                            255,
-                                            100,
-                                            100,
-                                            100,
+                          titlesData: FlTitlesData(
+                            rightTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            topTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: false,
+                                interval: 4,
+                                reservedSize: 30,
+                              ),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                interval: 2,
+                                reservedSize: 30,
+                                getTitlesWidget: (value, meta) {
+                                  final hour =
+                                      hourlyData[value.toInt()]!['hours'];
+                                  final label = hour;
+                                  return SideTitleWidget(
+                                    space: 0,
+                                    meta: meta,
+                                    child: Transform.translate(
+                                      offset: Offset(19.5, 0),
+                                      // shift left by label width
+                                      child: Container(
+                                        width: 40,
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            left: BorderSide(
+                                              color: Color.fromARGB(
+                                                255,
+                                                100,
+                                                100,
+                                                100,
+                                              ),
+                                              // or any color
+                                              width:
+                                                  1, // thickness of the border
+                                            ),
                                           ),
-                                          // or any color
-                                          width: 1, // thickness of the border
+                                        ),
+                                        alignment: Alignment.centerRight,
+                                        child: Container(
+                                          padding: EdgeInsets.only(top: 10),
+                                          child: Text(
+                                            textAlign: TextAlign.right,
+                                            label,
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                    alignment: Alignment.centerRight,
-                                    child: Container(
-                                      padding: EdgeInsets.only(top: 10),
-                                      child: Text(
-                                        textAlign: TextAlign.right,
-                                        label,
-                                        style: const TextStyle(fontSize: 15),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
+                                  );
+                                },
+                              ),
+                            ),
                           ),
+                          lineTouchData: LineTouchData(enabled: false),
+                          lineBarsData: [
+                            LineChartBarData(
+                              spots: dataPoints,
+                              isCurved: true,
+                              curveSmoothness: 0.3,
+                              dotData: FlDotData(show: false),
+                              color: Colors.red,
+                            ),
+                          ],
                         ),
                       ),
-                      lineTouchData: LineTouchData(enabled: false),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: dataPoints,
-                          isCurved: true,
-                          curveSmoothness: 0.3,
-                          dotData: FlDotData(show: false),
-                          color: Colors.red,
-                        ),
-                      ],
                     ),
                   ),
-                ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IgnorePointer(
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              width: 40,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerRight,
+                                  end: Alignment.centerLeft,
+                                  colors: [
+                                    Colors.black.withOpacity(0.2),
+                                    Colors.transparent,
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 30)
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

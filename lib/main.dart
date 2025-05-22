@@ -6,10 +6,12 @@ import 'alerts.dart';
 import 'package:weather_icons/weather_icons.dart';
 import 'temp_graph.dart';
 import 'rain_graph.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().init();
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -64,6 +66,11 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
     r'^[A-Z]{1,2}\d{1,2}[A-Z]?\s*\d[A-Z]{2}$',
     caseSensitive: false,
   );
+  late ScrollController _scrollController1 = ScrollController();
+  late ScrollController _scrollController2 = ScrollController();
+  bool _isSyncingScroll = false;
+
+  final titleColour = Colors.black;
 
   @override
   void initState() {
@@ -76,6 +83,21 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
           _postcodeController.text = _savedPostcode!;
         });
       }
+    });
+
+    _scrollController1.addListener(() {
+      if (!_scrollController2.hasClients) return;
+      if (_isSyncingScroll) return;
+      _isSyncingScroll = true;
+      _scrollController2.jumpTo(_scrollController1.offset);
+      _isSyncingScroll = false;
+    });
+
+    _scrollController2.addListener(() {
+      if (_isSyncingScroll) return;
+      _isSyncingScroll = true;
+      _scrollController1.jumpTo(_scrollController2.offset);
+      _isSyncingScroll = false;
     });
   }
 
@@ -175,12 +197,12 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // LOCATION section
-              const Text(
+              Text(
                 'Location',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: titleColour,
                 ),
               ),
               const SizedBox(height: 8),
@@ -214,12 +236,12 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'YESTERDAY',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: titleColour,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -245,12 +267,12 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'TODAY',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: titleColour,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -279,65 +301,32 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
               const SizedBox(height: 20),
 
               // TEMPERATURE GRAPH and WEATHER ICONS section
-              const Text(
-                'TEMPERATURE GRAPH',
+              Text(
+                'TEMPERATURE (°C)',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: titleColour,
                 ),
               ),
               const SizedBox(height: 8),
-              Stack(
-                children: [
-                  Container(
-                    height: 200,
-                    padding: EdgeInsets.only(top: 20, bottom: 10, left: 5),
-                    decoration: BoxDecoration(
-                      color: const Color(0x44FFFFFF),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: TempGraph(_currentPostcode),
-                  ),
-                  IgnorePointer(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: IgnorePointer(
-                          child: Container(
-                            width: 40,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.centerRight,
-                                end: Alignment.centerLeft,
-                                colors: [
-                                  Colors.black.withOpacity(0.2),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  ),
-                ],
+              Container(
+                height: 200,
+                padding: EdgeInsets.only(top: 20, bottom: 10, left: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0x44FFFFFF),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: TempGraph(_currentPostcode, _scrollController1),
               ),
 
               const SizedBox(height: 15),
-              const Text(
+              Text(
                 'WEATHER ICONS',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: titleColour,
                 ),
               ),
               const SizedBox(height: 8),
@@ -355,64 +344,31 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
               const SizedBox(height: 20),
 
               // RAINFALL GRAPHS and ALERTS section
-              const Text(
-                'RAINFALL GRAPHS',
+              Text(
+                'RAINFALL (mm)',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: titleColour,
                 ),
               ),
               const SizedBox(height: 8),
-              Stack(
-                children: [
-                  Container(
-                    height: 200,
-                    padding: EdgeInsets.only(top: 20, bottom: 10, left: 5),
-                    decoration: BoxDecoration(
-                      color: const Color(0x55909090),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: RainGraph(_currentPostcode),
-                  ),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        color: const Color(0x55909090),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: IgnorePointer(
-                          child: Container(
-                            width: 40,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.centerRight,
-                                end: Alignment.centerLeft,
-                                colors: [
-                                  Colors.black.withOpacity(0.2),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              Container(
+                padding: EdgeInsets.only(top: 20, bottom: 10, left: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0x44FFFFFF),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: RainGraph(_currentPostcode, _scrollController2),
               ),
 
               const SizedBox(height: 15),
-              const Text(
+              Text(
                 'ALERTS',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: titleColour,
                 ),
               ),
               const SizedBox(height: 8),

@@ -16,6 +16,7 @@
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
 class API {
@@ -156,9 +157,14 @@ Map<String, Map<String, dynamic>> getFutureData() {
 
   // Async factory constructor
   static Future<API> create(String postCode) async {
+    String apiKey = dotenv.env['WEATHER_API_KEY'] ?? '';
+    if (apiKey.isEmpty) {
+      throw Exception('API key is missing. Please add it to your .env file.');
+    }
+
     String formattedPostCode = postCode.replaceAll(' ', '%20');
     String url =
-        "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/$formattedPostCode?unitGroup=us&key=TB7ZNBTHMPNQXYBA5ZW3HXQQ4&contentType=json";
+        "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/$formattedPostCode?unitGroup=us&key=$apiKey&contentType=json";
 
     try {
       final response = await http.get(Uri.parse(url));
