@@ -113,7 +113,7 @@ Map<int, Map<String, dynamic>> getHourlyData() {
   }
 
   // 2) Then 00 → currentHour−1 tomorrow
-  for (int h = 0; h < tomorrowHours.length && offset < 24; h++) {
+  for (int h = 0; h < tomorrowHours.length && offset < 25; h++) {
     final hourData = tomorrowHours[h];
     final formattedHour = h.toString().padLeft(2, '0') + ':00';
 
