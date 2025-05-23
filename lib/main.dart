@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:interaction_design/condition_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:interaction_design/temp_graph.dart';
 import 'API.dart';
@@ -68,6 +69,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
   );
   late ScrollController _scrollController1 = ScrollController();
   late ScrollController _scrollController2 = ScrollController();
+  late ScrollController _scrollController3 = ScrollController();
   bool _isSyncingScroll = false;
 
   final titleColour = Colors.black;
@@ -86,10 +88,10 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
     });
 
     _scrollController1.addListener(() {
-      if (!_scrollController2.hasClients) return;
       if (_isSyncingScroll) return;
       _isSyncingScroll = true;
-      _scrollController2.jumpTo(_scrollController1.offset);
+      if (_scrollController2.hasClients) {_scrollController2.jumpTo(_scrollController1.offset);}
+      _scrollController3.jumpTo(_scrollController1.offset);
       _isSyncingScroll = false;
     });
 
@@ -97,6 +99,15 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
       if (_isSyncingScroll) return;
       _isSyncingScroll = true;
       _scrollController1.jumpTo(_scrollController2.offset);
+      _scrollController3.jumpTo(_scrollController2.offset);
+      _isSyncingScroll = false;
+    });
+
+    _scrollController3.addListener(() {
+      if (_isSyncingScroll) return;
+      _isSyncingScroll = true;
+      _scrollController1.jumpTo(_scrollController3.offset);
+      if (_scrollController2.hasClients) {_scrollController2.jumpTo(_scrollController3.offset);}
       _isSyncingScroll = false;
     });
   }
@@ -311,32 +322,23 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
               ),
               const SizedBox(height: 8),
               Container(
-                height: 200,
-                padding: EdgeInsets.only(top: 20, bottom: 10, left: 10),
+                height: 250,
+                padding: EdgeInsets.only(top: 10, bottom: 10, left: 10),
                 decoration: BoxDecoration(
                   color: const Color(0x44FFFFFF),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: TempGraph(_currentPostcode, _scrollController1),
+                child: Column(
+                  children: [
+                    ConditionBar(_currentPostcode, _scrollController3),
+                    SizedBox(height:10),
+                    Expanded(
+                      child: TempGraph(_currentPostcode, _scrollController1),
+                    ),
+                  ],
+                ),
               ),
 
-              const SizedBox(height: 15),
-              Text(
-                'WEATHER ICONS',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: titleColour,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.grey[400],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
               const SizedBox(height: 20),
 
               // Divider line
@@ -345,7 +347,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
 
               // RAINFALL GRAPHS and ALERTS section
               Text(
-                'RAINFALL (mm)',
+                'RAINFALL (% chance)',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
