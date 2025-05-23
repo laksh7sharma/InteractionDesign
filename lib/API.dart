@@ -120,7 +120,7 @@ Map<int, Map<String, dynamic>> getHourlyData() {
 
     result[offset] = {
       "temperature": hourData["temp"],
-      "rainfall":    hourData["precip"],
+      "rainfall":    hourData["precipprob"],
       "conditions":  hourData["conditions"],
       "hours":       formattedHour,
     };

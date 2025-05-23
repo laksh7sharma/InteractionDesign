@@ -54,6 +54,7 @@ class RainGraph extends StatelessWidget {
 
           final hour = entry.key.toDouble();
           final rainfall = entry.value['rainfall'];
+          print(entry);
           if (rainfall > maxRain) {
             maxRain = rainfall;
           }
@@ -62,10 +63,10 @@ class RainGraph extends StatelessWidget {
               x: entry.key,
               barRods: [
                 BarChartRodData(
-                  toY: rainfall,
+                  toY: rainfall == 0 ? 0.01 : rainfall,
                   width: 35,
                   borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(10),
+                    top: Radius.circular(rainfall == 0 ? 1 : 10),
                     bottom: Radius.zero,
                   ),
                 ),
@@ -202,13 +203,13 @@ class RainGraph extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: Container(
-                                  width: 60,
+                                  width: 40,
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       begin: Alignment.centerRight,
                                       end: Alignment.centerLeft,
                                       colors: [
-                                        Colors.black.withOpacity(0.4),
+                                        Colors.black.withOpacity(0.3),
                                         Colors.transparent,
                                       ],
                                     ),
