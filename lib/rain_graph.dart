@@ -152,6 +152,9 @@ class RainGraph extends StatelessWidget {
                           child: BarChart(
                             BarChartData(
                               barGroups: bars,
+                              extraLinesData: ExtraLinesData(
+                                horizontalLines: [HorizontalLine(y: maxRain, color: Colors.grey)],
+                              ),
                               alignment: BarChartAlignment.center,
                               barTouchData: BarTouchData(enabled: false),
                               borderData: FlBorderData(show: false),
