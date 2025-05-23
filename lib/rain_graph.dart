@@ -6,7 +6,6 @@ import 'dart:math';
 class RainGraph extends StatelessWidget {
   final String postcode;
   final ScrollController scrollController;
-  bool isRain = false;
 
   RainGraph(this.postcode, this.scrollController, {Key? key}) : super(key: key);
 
@@ -48,6 +47,7 @@ class RainGraph extends StatelessWidget {
         double maxRain = 0;
 
         for (final entry in hourlyData.entries) {
+          // We want to not have 25 hours of rain data
           if (entry.key == 24) {
             continue;
           }
