@@ -12,7 +12,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().init();
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "_env");
   runApp(const MyApp());
 }
 
