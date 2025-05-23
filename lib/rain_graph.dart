@@ -54,7 +54,6 @@ class RainGraph extends StatelessWidget {
 
           final hour = entry.key.toDouble();
           final rainfall = entry.value['rainfall'];
-          print(entry);
           if (rainfall > maxRain) {
             maxRain = rainfall;
           }
@@ -125,11 +124,17 @@ class RainGraph extends StatelessWidget {
                             getTitlesWidget: (value, meta) {
                               if (value == maxRain) {
                                 return SideTitleWidget(
+                                  space: 0,
                                   meta: meta,
+                                  fitInside: SideTitleFitInsideData(enabled: false, distanceFromEdge: 0, parentAxisSize: 0, axisPosition: 0),
                                   child: Text(
-                                    maxRain.toString(),
+                                    maxRain.toStringAsFixed(1),
+                                    overflow: TextOverflow.clip,
+                                    maxLines: 1,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      letterSpacing: 0,
                                     ),
                                   ),
                                 );
