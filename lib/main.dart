@@ -493,7 +493,7 @@ class _SecondPageState extends State<SecondPage> {
           final data = locData.getFutureData();
           final day1 = data["1"];
 
-          var day_data = [
+          /*var day_data = [
             data["1"],
             data["2"],
             data["3"],
@@ -501,7 +501,7 @@ class _SecondPageState extends State<SecondPage> {
             data["5"],
             data["6"],
             data["7"],
-          ];
+          ];*/
           final day2 = data["2"];
           final day3 = data["3"];
           final day4 = data["4"];
@@ -521,15 +521,12 @@ class _SecondPageState extends State<SecondPage> {
           final String lowTemp =
               (((day1?["lowTemperature"]).toDouble() - 32) * (5 / 9))
                   .truncate()
-                  .toString() ??
-              'N/A';
-          ;
+                  .toString();
+
           final String highTemp =
               (((day1?["highTemperature"]).toDouble() - 32) * (5 / 9))
                   .truncate()
-                  .toString() ??
-              'N/A';
-          ;
+                  .toString();
           final String precip = day1?["rainfall"].toString() ?? '...';
           final String conditions = day1?["conditions"].toString() ?? '';
           final defaultWeather = WeatherIcons.day_sunny;
