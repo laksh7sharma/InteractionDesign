@@ -53,7 +53,7 @@ class RainGraph extends StatelessWidget {
           }
 
           final hour = entry.key.toDouble();
-          final rainfall = entry.value['rainfall'] + 10;
+          final rainfall = entry.value['rainfall'];
           if (rainfall > maxRain) {
             maxRain = rainfall;
           }
