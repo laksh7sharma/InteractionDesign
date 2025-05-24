@@ -74,7 +74,7 @@ class RainGraph extends StatelessWidget {
           );
         }
 
-        if (maxRain == 0) {
+        if (maxRain <=  0.1) {
           // Build no rain message
           return Row(
             children: [
