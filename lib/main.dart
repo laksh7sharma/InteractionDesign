@@ -71,7 +71,8 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
   late ScrollController _scrollController2 = ScrollController();
   late ScrollController _scrollController3 = ScrollController();
   bool _isSyncingScroll = false;
-
+  Map<String, dynamic>? _yesterdaySummary;
+  Map<String, dynamic>? _todayInfo;
   final titleColour = Colors.black;
 
   @override
@@ -79,6 +80,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
     super.initState();
     _loadSavedPostcode().then((_) {
       _checkAlerts();
+      _loadSummaries();
       if (_savedPostcode != null) {
         setState(() {
           _currentPostcode = _savedPostcode!;
@@ -136,6 +138,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
       // Trigger rebuild of temperature graph by updating state
       setState(() {});
       _checkAlerts();
+      _loadSummaries();
     } else {
       ScaffoldMessenger.of(
         context,
@@ -167,6 +170,38 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
       }
     } catch (e) {
       debugPrint('Error checking alerts: $e');
+    }
+  }
+  Future<void> _loadSummaries() async {
+    try {
+      final api = await API.create(_currentPostcode);
+      final y = api.getYesterdaySummary();
+      final t = api.getTodayOverallInfo();
+      
+     
+      double toC(double f) {
+      // convert Fahrenheit to Celsius and round to 1 dp
+      final c = (f - 32) * 5 / 9;
+      return (c * 10).round() / 10;
+    }
+      
+      setState(() {
+        _yesterdaySummary = {
+          'lowTemperature': toC(y['lowTemperature']),
+          'highTemperature': toC(y['highTemperature']),
+          'rainfall': y['rainfall'],
+        };
+        _todayInfo = {
+          'currentTemperature': toC(t['currentTemperature']),
+          'feelsLikeTemperature': toC(t['feelsLikeTemperature']),
+          'windSpeed': t['windSpeed'],
+          'windDir': t['windDir'],
+          'lowTemperature': toC(t['lowTemperature']),
+          'highTemperature': toC(t['highTemperature']),
+        };
+      });
+    } catch (e) {
+      debugPrint('Error loading summaries: \$e');
     }
   }
 
@@ -240,71 +275,51 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
               ],
               const SizedBox(height: 20),
               // YESTERDAY and TODAY in a row
-              Row(
-                children: [
-                  // YESTERDAY section
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'YESTERDAY',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: titleColour,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: const Color(0x55303030),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'SUMMARY',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ],
+              Row(children: [
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('YESTERDAY', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: titleColour)),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 100,
+                    decoration: BoxDecoration(color: const Color(0x55303030), borderRadius: BorderRadius.circular(8)),
+                    child: Center(
+                      child: _yesterdaySummary == null
+                          ? const Text('Loading...', style: TextStyle(color: Colors.white))
+                          : Text(
+                              'L:${_yesterdaySummary!['lowTemperature']}°\n H:${_yesterdaySummary!['highTemperature']}°\n Rainfall:${_yesterdaySummary!['rainfall']}mm',
+                              style: const TextStyle(color: Colors.white), textAlign: TextAlign.center),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  // TODAY section
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'TODAY',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: titleColour,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: const Color(0x55303030),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'SUMMARY',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ])),
+                const SizedBox(width: 16),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('TODAY', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: titleColour)),
+                  const SizedBox(height: 8),
+                  Container(
+  // increased height to fit three lines
+  height: 100,
+  decoration: BoxDecoration(
+    color: const Color(0x55303030),
+    borderRadius: BorderRadius.circular(8),
+  ),
+  child: Center(
+    child: _todayInfo == null
+        ? const Text(
+            'Loading...',
+            style: TextStyle(color: Colors.white),
+          )
+        : Text(
+            'Now: ${_todayInfo!['currentTemperature']}°\n'
+            'Feels: ${_todayInfo!['feelsLikeTemperature']}°\n'
+            'L: ${_todayInfo!['lowTemperature']}°  H: ${_todayInfo!['highTemperature']}°\n'
+            'Wind: ${_todayInfo!['windSpeed']}',
+            style: const TextStyle(color: Colors.white),
+            textAlign: TextAlign.center,
+          ),
+  ),
+),
+                ])),
+              ]),
               const SizedBox(height: 20),
 
               // Divider line
