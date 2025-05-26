@@ -456,10 +456,10 @@ class SecondPage extends StatefulWidget {
   @override
   _SecondPageState createState() => _SecondPageState();
 }
-
+//second page class for the future overview page
 class _SecondPageState extends State<SecondPage> {
   late Future<API> _locDataFuture;
-
+//initialise variables for fields to be displayed for each day
   String lowTemp = '';
   String highTemp = '';
   String conditions = '';
@@ -482,6 +482,7 @@ class _SecondPageState extends State<SecondPage> {
     _locDataFuture = API.create('EN5 5DS');
   }
 
+  //get data from the API class
   Future<void> loadWeatherData(API locData, int i) async {
     Map<String, Map<String, dynamic>> data = await locData.getFutureData();
     final day = data[i.toString()];
@@ -496,7 +497,7 @@ class _SecondPageState extends State<SecondPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<API>(
+    return FutureBuilder<API>( //using the API class
       future: _locDataFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -508,6 +509,7 @@ class _SecondPageState extends State<SecondPage> {
           final data = locData.getFutureData();
           final day1 = data["1"];
 
+
           /*var day_data = [
             data["1"],
             data["2"],
@@ -517,6 +519,8 @@ class _SecondPageState extends State<SecondPage> {
             data["6"],
             data["7"],
           ];*/
+
+          //stored data for each day from the API class - this could be made more efficient using an array
           final day2 = data["2"];
           final day3 = data["3"];
           final day4 = data["4"];
@@ -524,6 +528,7 @@ class _SecondPageState extends State<SecondPage> {
           final day6 = data["6"];
           final day7 = data["7"];
 
+          //assigned weather icons for weather forecast conditions using the icons package
           final Map<String, IconData> weatherIconMap = {
             'Clear': WeatherIcons.day_sunny,
             'Partially cloudy': WeatherIcons.day_cloudy,
@@ -532,7 +537,7 @@ class _SecondPageState extends State<SecondPage> {
             'Snow': WeatherIcons.snow,
             'Thunderstorm': WeatherIcons.thunderstorm,
           };
-
+          //for day1 stored the low and high temperature and converted Fahrenheit to Celsius
           final String lowTemp =
               (((day1?["lowTemperature"]).toDouble() - 32) * (5 / 9))
                   .truncate()
@@ -542,10 +547,12 @@ class _SecondPageState extends State<SecondPage> {
               (((day1?["highTemperature"]).toDouble() - 32) * (5 / 9))
                   .truncate()
                   .toString();
+          //similarly stored the precipitation and conditions data for day 1
           final String precip = day1?["rainfall"].toString() ?? '...';
           final String conditions = day1?["conditions"].toString() ?? '';
-          final defaultWeather = WeatherIcons.day_sunny;
+          final defaultWeather = WeatherIcons.day_sunny; //in case the weather conditions were not received
 
+          //for more efficient implementation in the future
           Map<String, String> lowTempData = {};
           Map<String, String> highTempData = {};
           Map<String, String> precipData = {};
@@ -557,7 +564,9 @@ class _SecondPageState extends State<SecondPage> {
             precipData.add(day?["rainfall"].toString() ?? '...');
             conditionsData.add(day?["conditions"].toString() ?? '');
           }*/
-
+          //similarly repeated for the the other 6 days of the week
+          //this code could be made cleaner by using a for loop, this change can be made in the next stage of the development process
+          //as this is just a prototype
           lowTempData['Thursday'] =
               (((day2?["lowTemperature"]).toDouble() - 32) * (5 / 9))
                   .truncate()
@@ -624,10 +633,11 @@ class _SecondPageState extends State<SecondPage> {
           precipData['Tuesday'] = day7?["rainfall"].toString() ?? '...';
           conditionsData['Tuesday'] = day7?["conditions"].toString() ?? '';
 
+          //designing page UI
           return Scaffold(
-            appBar: AppBar(
+            appBar: AppBar( //design for the top section of the page
               //backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: Text(
+              title: Text( //
                 widget.title,
                 style: TextStyle(
                   fontSize: 22,
@@ -635,7 +645,7 @@ class _SecondPageState extends State<SecondPage> {
                   color: Colors.black,
                 ),
               ),
-              backgroundColor: Color(0xff91ca95),
+              backgroundColor: Color(0xff91ca95), //same colour as the main page to make it cohesive
             ),
             body: Stack(
               children: [
@@ -650,7 +660,7 @@ class _SecondPageState extends State<SecondPage> {
                   crossAxisCount: 1,
                   childAspectRatio: 7,
                   children: <Widget>[
-                    Container(
+                    Container( //container for the first day
                       padding: const EdgeInsets.all(16),
                       height: MediaQuery.of(context).size.height * 0.2,
                       decoration: BoxDecoration(
@@ -678,8 +688,8 @@ class _SecondPageState extends State<SecondPage> {
                                     SizedBox(width: 4),
                                     Flexible(
                                       child: Text(
-                                        'Wednesday',
-                                        overflow: TextOverflow.ellipsis,
+                                        'Wednesday', //display day
+                                        overflow: TextOverflow.ellipsis,//to avoid overflow errors - ellipsis will show if content too long
                                       ),
                                     ),
                                   ],
@@ -699,7 +709,7 @@ class _SecondPageState extends State<SecondPage> {
                                     SizedBox(width: 1),
                                     Flexible(
                                       child: Text(
-                                        "L: $lowTemp° H: $highTemp°",
+                                        "L: $lowTemp° H: $highTemp°", //display high and low temp
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
@@ -718,13 +728,13 @@ class _SecondPageState extends State<SecondPage> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     const Icon(
-                                      Icons.water_drop,
+                                      Icons.water_drop, //icon for precipitation
                                       color: Color(0xff8ae0ef),
                                     ),
                                     const SizedBox(width: 2),
                                     Flexible(
                                       child: Text(
-                                        '$precip mm',
+                                        '$precip mm', //display precipitation
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
@@ -751,8 +761,8 @@ class _SecondPageState extends State<SecondPage> {
                                           fit: BoxFit.contain,
                                           child: DynamicWeatherIcon(
                                             icon:
-                                                weatherIconMap['$conditions'] ??
-                                                WeatherIcons.day_sunny,
+                                                weatherIconMap['$conditions'] ?? //display the appropriate icon depending on condition as defined above
+                                                WeatherIcons.day_sunny, //else revert to default day icon
                                             size: 25,
                                           ),
                                         ),
@@ -766,7 +776,7 @@ class _SecondPageState extends State<SecondPage> {
                         ],
                       ),
                     ),
-                    for (var day in [
+                    for (var day in [ //in the exact same way - create containers for the other 6 days
                       'Thursday',
                       'Friday',
                       'Saturday',
@@ -774,6 +784,9 @@ class _SecondPageState extends State<SecondPage> {
                       'Monday',
                       'Tuesday',
                     ])
+                    // the container below is identical to the one above
+                      // in the next stage of development (after the prototype stage
+                      // can reduce the length of code by just having 1 singular for loop for all the containers rather than splitting into 2 like this)
                       Container(
                         padding: const EdgeInsets.all(16),
                         height: MediaQuery.of(context).size.height * 0.2,
@@ -890,6 +903,7 @@ class _SecondPageState extends State<SecondPage> {
                   ],
                 ),
 
+                //back button to return to main page again - added to the bottom of the page as this will be the user's natural line of sight
                 Positioned(
                   bottom: 20,
                   left: 0,
@@ -897,7 +911,7 @@ class _SecondPageState extends State<SecondPage> {
                   child: Center(
                     child: ElevatedButton(
                       child: const Text("Go back"),
-                      onPressed: () {
+                      onPressed: () { //button is highlighted when hovered over
                         Navigator.pop(context);
                       },
                     ),
