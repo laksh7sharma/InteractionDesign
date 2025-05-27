@@ -144,12 +144,13 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
           message: 'Extreme wind speeds detected (>30 mph)!',
         );
       }
-      if (info['lowTemperature'] < 100) {
+      if (info['lowTemperature'] < 37) {
         AlertUtils.showPopup(
-          title: 'Low Temperature Alert',
-          message: 'Low temperature detected (${info['lowTemperature']}°C)!',
+          title: 'Low temperature alert',
+          message: 'Wear a coat, it\'s cold outside!',
         );
       }
+      
     } catch (e) {
       debugPrint('Error checking alerts: $e');
     }
