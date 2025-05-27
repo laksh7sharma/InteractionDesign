@@ -42,6 +42,7 @@ class TempGraph extends StatelessWidget {
           return const Center(child: Text('No hourly data available'));
         }
 
+        // Prepare temperature values and line chart points.
         double maxTemp = -double.infinity;
         double minTemp = double.infinity;
         final List<FlSpot> dataPoints = [];
@@ -49,30 +50,34 @@ class TempGraph extends StatelessWidget {
         for (final entry in hourlyData.entries) {
           final hour = entry.key.toDouble();
           final temp =
-              ((entry.value['temperature'] as num).toDouble() - 32) * (5 / 9);
+              ((entry.value['temperature'] as num).toDouble() - 32) *
+              (5 / 9); // Convert °F to °C
           dataPoints.add(FlSpot(hour, temp));
           if (temp < minTemp) minTemp = temp;
           if (temp > maxTemp) maxTemp = temp;
         }
 
+        // Round bounds for graph display
         final bottomLineVal = minTemp.floorToDouble();
         final topLineVal = maxTemp.ceilToDouble();
 
         final lightGrey = Color.fromARGB(255, 175, 175, 175);
 
-        // Build chart
+        // Build chart UI
         return Row(
           children: [
-            // y-axis Labels.
+            // Left-side y-axis with temp labels.
             Container(
-              width: 40,
+              width: 40, // Same width as the left axis reserved size, so that is t7he only part showing
               child: LineChart(
+                // We construct a whole line chart, but all but the left axis will be cropped
                 LineChartData(
                   minX: 0,
                   minY: bottomLineVal,
                   maxY: topLineVal,
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
+                    // Only have left title showing
                     rightTitles: AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
                     ),
@@ -84,6 +89,7 @@ class TempGraph extends StatelessWidget {
                         showTitles: true,
                         reservedSize: 40,
                         getTitlesWidget: (value, meta) {
+                          // Show labels only for specific points
                           if (value % 5 == 0) {
                             return SideTitleWidget(
                               meta: meta,
@@ -92,7 +98,6 @@ class TempGraph extends StatelessWidget {
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             );
-                            return const SizedBox.shrink(); // Don't show label
                           } else if (value == maxTemp.ceilToDouble()) {
                             return SideTitleWidget(
                               meta: meta,
@@ -116,7 +121,7 @@ class TempGraph extends StatelessWidget {
                               ),
                             );
                           }
-                          return const SizedBox.shrink(); // Don't show label
+                          return const SizedBox.shrink();
                         },
                       ),
                     ),
@@ -133,7 +138,7 @@ class TempGraph extends StatelessWidget {
                 ),
               ),
             ),
-            // Graph, scrollable
+            // Scrollable graph area
             Expanded(
               child: Stack(
                 children: [
@@ -144,14 +149,18 @@ class TempGraph extends StatelessWidget {
                       width: 1000,
                       child: LineChart(
                         LineChartData(
+                          // Reference lines
                           extraLinesData: ExtraLinesData(
+                            // Line at x = 0
                             verticalLines: [
                               VerticalLine(
                                 x: 0,
                                 color: Color.fromARGB(255, 100, 100, 100),
-                                strokeWidth: 1, // optional: dotted line
+                                strokeWidth: 1,
                               ),
                             ],
+
+                            // 2 lines at y=max and y=min, since these are normally missed
                             horizontalLines: [
                               HorizontalLine(
                                 y: topLineVal,
@@ -180,26 +189,19 @@ class TempGraph extends StatelessWidget {
                             getDrawingVerticalLine: (value) {
                               return FlLine(
                                 color: Color.fromARGB(255, 100, 100, 100),
-                                // Your custom color
-                                strokeWidth:
-                                    1, // Dottedness: [dash length, space length]
+                                strokeWidth: 1,
                               );
                             },
                             horizontalInterval: 1,
                             getDrawingHorizontalLine: (value) {
+                              // Make every multiple of 5 line darker.
                               if (value % 5 == 0) {
                                 return FlLine(
                                   color: Color.fromARGB(255, 100, 100, 100),
-                                  // Your custom color
-                                  strokeWidth:
-                                      1, // Dottedness: [dash length, space length]
+                                  strokeWidth: 1,
                                 );
                               } else {
-                                return FlLine(
-                                  color: lightGrey, // Your custom color
-                                  strokeWidth:
-                                      1, // Dottedness: [dash length, space length]
-                                );
+                                return FlLine(color: lightGrey, strokeWidth: 1);
                               }
                             },
                           ),
@@ -223,6 +225,7 @@ class TempGraph extends StatelessWidget {
                                 interval: 2,
                                 reservedSize: 30,
                                 getTitlesWidget: (value, meta) {
+                                  // Display hour label underneath each major tick
                                   final hour =
                                       hourlyData[value.toInt()]!['hours'];
                                   final label = hour;
@@ -230,11 +233,11 @@ class TempGraph extends StatelessWidget {
                                     space: 0,
                                     meta: meta,
                                     child: Transform.translate(
-                                      offset: Offset(19.5, 0),
-                                      // shift left by label width
+                                      offset: Offset(19.5, 0), // Offset so every label is to the right of the tick
                                       child: Container(
                                         width: 40,
                                         decoration: BoxDecoration(
+                                          // Add a left border as a tick
                                           border: Border(
                                             left: BorderSide(
                                               color: Color.fromARGB(
@@ -243,9 +246,7 @@ class TempGraph extends StatelessWidget {
                                                 100,
                                                 100,
                                               ),
-                                              // or any color
-                                              width:
-                                                  1, // thickness of the border
+                                              width: 1,
                                             ),
                                           ),
                                         ),
@@ -269,6 +270,7 @@ class TempGraph extends StatelessWidget {
                           ),
                           lineTouchData: LineTouchData(enabled: false),
                           lineBarsData: [
+                            // Main temperature line
                             LineChartBarData(
                               spots: dataPoints,
                               isCurved: true,
@@ -281,9 +283,10 @@ class TempGraph extends StatelessWidget {
                       ),
                     ),
                   ),
+                  // Fading gradient on the right to suggest scrollability
                   Align(
                     alignment: Alignment.centerRight,
-                    child: IgnorePointer(
+                    child: IgnorePointer( // To prevent absorbing scrolling input
                       child: Column(
                         children: [
                           Expanded(
@@ -301,7 +304,7 @@ class TempGraph extends StatelessWidget {
                               ),
                             ),
                           ),
-                          SizedBox(height: 30)
+                          SizedBox(height: 30),
                         ],
                       ),
                     ),

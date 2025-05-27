@@ -47,22 +47,27 @@ class RainGraph extends StatelessWidget {
         double maxRain = 0;
 
         for (final entry in hourlyData.entries) {
-          // We want to not have 25 hours of rain data
+          // Skip the 25th hour if present
           if (entry.key == 24) {
             continue;
           }
 
           final hour = entry.key.toDouble();
           final rainfall = entry.value['rainfall'];
+
+          // Update maxRain if needed
           if (rainfall > maxRain) {
             maxRain = rainfall;
           }
+
+          // Add a bar for the current hour
           bars.add(
             BarChartGroupData(
               x: entry.key,
               barRods: [
                 BarChartRodData(
                   toY: rainfall == 0 ? 0.01 : rainfall,
+                  // Ensure non-zero bar height
                   width: 35,
                   borderRadius: BorderRadius.vertical(
                     top: Radius.circular(rainfall == 0 ? 1 : 10),
@@ -74,7 +79,7 @@ class RainGraph extends StatelessWidget {
           );
         }
 
-        if (maxRain <=  0.1) {
+        if (maxRain <= 0.1) {
           // Build no rain message
           return Row(
             children: [
@@ -93,8 +98,9 @@ class RainGraph extends StatelessWidget {
             height: 150,
             child: Row(
               children: [
+                // Left Y-axis label (only maxRain value), always showing, even when scrolling
                 Container(
-                  width: 40,
+                  width: 40, // Made equal to reservedSize of left title, so will only show the labels
                   child: BarChart(
                     BarChartData(
                       barGroups: [
@@ -122,11 +128,17 @@ class RainGraph extends StatelessWidget {
                             interval: 1000,
                             reservedSize: 40,
                             getTitlesWidget: (value, meta) {
+                              // Only show maxRain label
                               if (value == maxRain) {
                                 return SideTitleWidget(
                                   space: 0,
                                   meta: meta,
-                                  fitInside: SideTitleFitInsideData(enabled: false, distanceFromEdge: 0, parentAxisSize: 0, axisPosition: 0),
+                                  fitInside: SideTitleFitInsideData(
+                                    enabled: false,
+                                    distanceFromEdge: 0,
+                                    parentAxisSize: 0,
+                                    axisPosition: 0,
+                                  ),
                                   child: Text(
                                     maxRain.toStringAsFixed(1),
                                     overflow: TextOverflow.clip,
@@ -147,25 +159,34 @@ class RainGraph extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                // Right side contains scrollable bar chart
                 Expanded(
                   child: Stack(
                     children: [
+                      // Scrollable container for hourly rain bars
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         controller: scrollController,
                         child: Container(
-                          width: 1000,
+                          width: 1000, // Width, bigger than standard width so will scroll.
                           child: BarChart(
                             BarChartData(
                               barGroups: bars,
                               extraLinesData: ExtraLinesData(
-                                horizontalLines: [HorizontalLine(y: maxRain, color: Colors.grey)],
+                                horizontalLines: [
+                                  HorizontalLine(
+                                    y: maxRain,
+                                    color: Colors.grey,
+                                  ),
+                                ],
                               ),
                               alignment: BarChartAlignment.center,
                               barTouchData: BarTouchData(enabled: false),
                               borderData: FlBorderData(show: false),
                               gridData: FlGridData(show: false),
                               titlesData: FlTitlesData(
+                                // Only show bottom label
                                 rightTitles: AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
@@ -201,9 +222,11 @@ class RainGraph extends StatelessWidget {
                           ),
                         ),
                       ),
+
+                      // Right fade effect to show scrollability
                       Align(
                         alignment: Alignment.centerRight,
-                        child: IgnorePointer(
+                        child: IgnorePointer( // Ignore pointer so it does not absorb scrolling action
                           child: Column(
                             children: [
                               Expanded(
