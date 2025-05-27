@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:interaction_design/temp_graph.dart';
 import 'package:weather_icons/weather_icons.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:window_size/window_size.dart';
+import 'dart:io';
 import 'API.dart';
 import 'alerts.dart';
 import 'temp_graph.dart';
@@ -12,8 +14,22 @@ import 'second_page.dart';
 import 'scroll_synchronizer.dart';
 
 // Entry point of the app
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Set properties
+  if (Platform.isWindows) {
+    setWindowTitle('Garden weather app');
+    setWindowFrame(Rect.fromLTWH(100, 100, 800, 1400));
+    if (args.length >= 2) {
+      var width = double.tryParse(args[0]);
+      var height = double.tryParse(args[1]);
+      if (width!= null && height != null) {
+        setWindowFrame(Rect.fromLTWH(100, 100, width, height));
+      }
+    }
+  }
+
   await NotificationService().init();
   await dotenv.load(fileName: "_env"); // Load environment variables
   runApp(const MyApp());

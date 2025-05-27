@@ -29,6 +29,10 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   flutter_dotenv: ^5.1.0
+  window_size:
+    git:
+      url: https://github.com/google/flutter-desktop-embedding
+      path: plugins/window_size
   http: ^0.13.6
   flutter:
     sdk: flutter
