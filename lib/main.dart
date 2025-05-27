@@ -13,7 +13,9 @@ import 'rain_graph.dart';
 import 'second_page.dart';
 import 'scroll_synchronizer.dart';
 
-// Entry point of the app
+var demonstration = false;
+
+// Entry point of the app. Takes optional width and height and optional -d flag for demonstration
 Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -26,6 +28,16 @@ Future<void> main(List<String> args) async {
       var height = double.tryParse(args[1]);
       if (width!= null && height != null) {
         setWindowFrame(Rect.fromLTWH(100, 100, width, height));
+      }
+      if (args.length >= 3) {
+        if (args[0] == "-d") {
+          demonstration = true;
+        }
+      }
+    }
+    if (args.length >= 1) {
+      if (args[0] == "-d") {
+        demonstration = true;
       }
     }
   }
@@ -148,6 +160,12 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
         AlertUtils.showPopup(
           title: 'Low temperature alert',
           message: 'Wear a coat, it\'s cold outside!',
+        );
+      }
+      if (demonstration) {
+        AlertUtils.showPopup(
+          title: 'High rainfall alert',
+          message: 'Wear a coat!',
         );
       }
       
