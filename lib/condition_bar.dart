@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:interaction_design/main.dart';
 import 'package:weather_icons/weather_icons.dart';
 import 'API.dart';
-import 'dart:math';
+import 'dynamic_weather_icon.dart';
 
 class ConditionBar extends StatelessWidget {
   final String postcode;
